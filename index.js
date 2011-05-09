@@ -31,7 +31,8 @@ module.exports = {
                     var layer = {};
                     f && (layer.formatter = f);
                     l && (layer.legend = l);
-                    callback(null, layer);
+                    options.jsonp && (layer = options.jsonp + '(' + JSON.stringify(layer) + ');');
+                    callback(null, [layer, { 'Content-Type': 'text/javascript' }]);
                 }
             );
             break;
@@ -68,7 +69,8 @@ module.exports = {
                         + ', "data":'
                         + JSON.stringify(gd)
                         + '}';
-                    callback(err, grid);
+                    options.jsonp && (grid = options.jsonp + '(' + grid + ');');
+                    callback(err, [grid, { 'Content-Type': 'text/javascript' }]);
                 }
             );
             break;
