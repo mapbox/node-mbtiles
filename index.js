@@ -28,15 +28,12 @@ module.exports = {
                     var layer = {};
                     f && (layer.formatter = f);
                     l && (layer.legend = l);
-                    options.jsonp && (layer = options.jsonp + '(' + JSON.stringify(layer) + ');');
                     callback(null, [layer, { 'Content-Type': 'text/javascript' }]);
                 }
             );
             break;
         case 'grid.json':
             resource.grid(options.x, options.y, options.z, function(err, grid) {
-                grid = JSON.stringify(grid);
-                options.jsonp && (grid = options.jsonp + '(' + grid + ');');
                 callback(err, [grid, { 'Content-Type': 'text/javascript' }]);
             });
             break;
