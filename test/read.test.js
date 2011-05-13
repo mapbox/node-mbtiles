@@ -33,19 +33,6 @@ exports['get metadata'] = function(beforeExit) {
     });
 };
 
-function write(mbtiles, x, y, z) {
-    mbtiles.tile(x, y, z, function(err, tile) {
-        if (err) console.warn(err);
-        fs.writeFileSync(__dirname + '/fixtures/images/plain_1_' + x + '_' + y + '_' + z + '.png', tile, 'binary');
-    });
-}
-
-// mbtiles.db.each('SELECT zoom_level, tile_column, tile_row FROM map', function(err, row) {
-//     if (Math.random() > 0.8) {
-//         write(mbtiles, row.tile_column, row.tile_row, row.zoom_level);
-//     }
-// });
-
 function yieldsError(status, error, msg) {
     return function(err) {
         assert.equal(err, msg);
@@ -86,5 +73,41 @@ exports['get tiles'] = function(beforeExit) {
 };
 
 exports['get grids'] = function(beforeExit) {
+    var status = {
+        success: 0,
+        error: 0
+    };
 
+    var mbtiles = new MBTiles(fixtures.plain_2);
+    fs.readdirSync(__dirname + '/fixtures/grids/').forEach(function(file) {
+        var coords = file.match(/^plain_2_(\d+)_(\d+)_(\d+).json$/);
+        if (coords) {
+            mbtiles.grid(coords[1] | 0, coords[2] | 0, coords[3] | 0, function(err, grid) {
+                if (err) throw err;
+                assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
+                status.success++;
+            });
+        }
+    });
+
+    mbtiles.grid(1, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, 0, -1, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, -1, 0, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(1, 8, 3, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(-3, 0, 2, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(2, 3, 18, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, 0, 4, yieldsError(status, 'error', 'Grid does not exist'));
+
+    mbtiles.grid(3, 8, 4, yieldsError(status, 'error', 'Grid is invalid'));
+    mbtiles.grid(4, 8, 4, yieldsError(status, 'error', 'Grid is invalid'));
+    mbtiles.grid(5, 8, 4, yieldsError(status, 'error', 'Grid is invalid'));
+    mbtiles.grid(13, 4, 4, yieldsError(status, 'error', 'Grid is invalid'));
+    mbtiles.grid(0, 14, 4, yieldsError(status, 'error', 'Grid is invalid'));
+    mbtiles.grid(0, 7, 3, yieldsError(status, 'error', 'Grid is invalid'));
+    mbtiles.grid(6, 2, 3, yieldsError(status, 'error', 'Grid is invalid'));
+
+    beforeExit(function() {
+        assert.equal(status.success, 50);
+        assert.equal(status.error, 14);
+    });
 };
