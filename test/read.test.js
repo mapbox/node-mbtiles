@@ -80,7 +80,7 @@ exports['get tiles'] = function(beforeExit) {
     mbtiles.tile(0, 0, 4, yieldsError(status, 'error', 'Tile does not exist'));
 
     beforeExit(function() {
-        assert.equal(status.success, 52);
+        assert.equal(status.success, 59);
         assert.equal(status.error, 7);
     });
 };
