@@ -68,7 +68,7 @@ exports['get tiles'] = function(beforeExit) {
     mbtiles.tile(0, 0, 4, yieldsError(status, 'error', 'Tile does not exist'));
 
     beforeExit(function() {
-        assert.equal(status.success, 59);
+        assert.equal(status.success, 285);
         assert.equal(status.error, 7);
     });
 };
@@ -108,7 +108,7 @@ exports['get grids'] = function(beforeExit) {
     mbtiles.grid(6, 2, 3, yieldsError(status, 'error', 'Grid is invalid'));
 
     beforeExit(function() {
-        assert.equal(status.success, 50);
+        assert.equal(status.success, 241);
         assert.equal(status.error, 14);
     });
 };
@@ -177,7 +177,7 @@ exports['get grids with different schema'] = function(beforeExit) {
     mbtiles.grid(6, 2, 3, yieldsError(status, 'error', 'Grid is invalid'));
 
     beforeExit(function() {
-        assert.equal(status.success, 50);
+        assert.equal(status.success, 241);
         assert.equal(status.error, 14);
     });
 };
