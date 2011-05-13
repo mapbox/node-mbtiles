@@ -111,3 +111,32 @@ exports['get grids'] = function(beforeExit) {
         assert.equal(status.error, 14);
     });
 };
+
+
+exports['get grids from file without interaction'] = function(beforeExit) {
+    var status = {
+        success: 0,
+        error: 0
+    };
+
+    var mbtiles = new MBTiles(fixtures.plain_1);
+    mbtiles.grid(1, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, 0, -1, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, -1, 0, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(1, 8, 3, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(-3, 0, 2, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(2, 3, 18, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, 0, 4, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(3, 8, 4, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(4, 8, 4, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(5, 8, 4, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(13, 4, 4, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, 14, 4, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(0, 7, 3, yieldsError(status, 'error', 'Grid does not exist'));
+    mbtiles.grid(6, 2, 3, yieldsError(status, 'error', 'Grid does not exist'));
+
+    beforeExit(function() {
+        assert.equal(status.success, 0);
+        assert.equal(status.error, 14);
+    });
+};
