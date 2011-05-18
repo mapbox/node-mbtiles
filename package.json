@@ -1,33 +1,31 @@
 {
-    "name": "tilelive-mbtiles",
+    "name": "mbtiles",
     "version": "0.0.1",
-    "description": "mbtiles backend for tilelive",
-    "url": "http://github.com/mapbox/tilelive-mbtiles",
-    "keywords": ["map", "server", "mbtiles", "tms"],
+    "description": "Utilities and tilelive integration for the MBTiles format.",
+    "url": "http://github.com/mapbox/node-mbtiles",
+    "keywords": ["map", "mbtiles"],
     "licenses": [{ "type": "BSD" }],
-
     "main": "./index",
-
     "repositories": [{
         "type": "git",
-        "url": "http://github.com/mapbox/tilelive-mbtiles.git"
+        "url": "http://github.com/mapbox/node-mbtiles.git"
     }],
-
     "contributors": [
         "Tom MacWright <tmcw>",
         "Will White <willwhite>",
         "Dane Springmeyer <springmeyer>",
         "Young Hahn <yhahn>"
     ],
-
     "dependencies": {
         "sqlite3": "2.0.x",
         "step": "0.0.x",
         "underscore": "1.1.x",
         "zlib": "1.0.x"
     },
-
     "engines": {
         "node": ">= 0.4.0"
+    },
+    "scripts": {
+        "test": "expresso"
     }
 }
