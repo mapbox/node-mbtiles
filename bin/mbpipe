@@ -1,0 +1,144 @@
+#!/usr/bin/env node
+
+var options = argv = require('optimist').argv,
+    _ = require('underscore'),
+    Step = require('step'),
+    sys = require('sys'),
+    spawn = require('child_process').spawn,
+    MBTiles = require('..').MBTiles,
+    utils = require('..').utils,
+    mbtiles,
+    table,
+    total;
+
+// @TODO: support specifying a table to be processed, e.g. for processing
+// grids or grid data.
+
+// Show help.
+if (argv.help || argv._.length < 2) {
+    console.warn('Usage: mbpipe [COMMAND] [FILE]');
+    utils.table([
+        ['--help', 'Show help.']
+    ]);
+    process.exit();
+}
+
+// Grab args.
+var filename = argv._[1],
+    command = {
+        command: argv._[0].split(' ')[0],
+        args: argv._[0].split(' ').slice(1)
+    };
+
+Step(
+    function() { mbtiles = new MBTiles(filename, this); },
+    function(err) {
+        if (err) throw err;
+        Step(
+            function() { mbtiles.db.run('PRAGMA synchronous=0', this); },
+            function() { mbtiles.db.run('PRAGMA locking_mode=EXCLUSIVE', this); },
+            function() { mbtiles.db.run('PRAGMA journal_mode=TRUNCATE', this); },
+            this
+        );
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.exists('tiles', function(err, exists) {
+            if (exists) table = 'tiles';
+            this();
+        }.bind(this));
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.exists('images', function(err, exists) {
+            if (exists) table = 'images';
+            this();
+        }.bind(this));
+    },
+    function(err) {
+        if (err) throw err;
+        if (!table) throw new Error('No usable image table found.');
+        mbtiles.db.get('SELECT COUNT(tile_data) AS total FROM ' + table, function(err, row) {
+            total = row.total;
+            this();
+        }.bind(this));
+    },
+    function(err) {
+        if (err) throw err;
+        if (!total) throw new Error('No tiles found');
+
+        var printed = 0;
+        var done = this;
+        var doit = function(table, limit, offset) {
+            process.nextTick(function() {
+                var query = table === 'images'
+                    ? mbtiles.db.prepare('SELECT tile_data AS tile_data, tile_id AS id FROM images ORDER BY tile_id ASC LIMIT ? OFFSET ?')
+                    : mbtiles.db.prepare('SELECT tile_data AS tile_data, zoom_level AS z, tile_column AS x, tile_row AS y FROM tiles ORDER BY z, x, y LIMIT ? OFFSET ?');
+                query.all(limit, offset, function(err, rows) {
+                    Step(
+                        function() {
+                            var group = this.group();
+                            var exec = function(row, callback) {
+                                row.piped = new Buffer(0);
+                                var child = spawn(command.command, command.args);
+                                var stream = function(chunk) {
+                                    var joined = (new Buffer(row.piped.length + chunk.length));
+                                    row.piped.copy(joined, 0, 0);
+                                    chunk.copy(joined, row.piped.length, 0);
+                                    row.piped = joined;
+                                };
+                                child.stdin.write(row.tile_data);
+                                child.stdin.end();
+                                child.stdout.on('data', stream);
+                                child.stderr.on('data', stream);
+                                child.on('exit', function(code) {
+                                    if (code) return callback(null, null);
+                                    if (table === 'images') {
+                                        mbtiles.db.run(
+                                            'INSERT OR REPLACE INTO images (tile_id, tile_data) VALUES(?, ?)',
+                                            row.id,
+                                            row.piped,
+                                            callback
+                                        );
+                                    } else {
+                                        mbtiles.db.run(
+                                            'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES(?, ?, ?, ?)',
+                                            row.z,
+                                            row.x,
+                                            row.y,
+                                            row.piped,
+                                            callback
+                                        );
+                                    }
+                                });
+                            };
+                            for (var i = 0; i < rows.length; i++) {
+                                exec(rows[i], group());
+                            }
+                        },
+                        function(err) {
+                            var progress = Math.floor(offset / total * 40);
+                            if (progress > printed) {
+                                sys.print((new Array(progress - printed + 1)).join('#'));
+                                printed = progress;
+                            }
+                            if (rows.length === limit) {
+                                doit(table, limit, offset + limit);
+                            } else {
+                                mbtiles.db.run('VACUUM', function() {
+                                    sys.print('\n');
+                                    console.warn('Pipe complete.');
+                                    done();
+                                });
+                            }
+                        }
+                    );
+                });
+                query.finalize();
+            });
+        };
+        console.warn('00 -------------- 50 -------------- 100');
+        doit(table, 255, 0);
+    }
+);
+
