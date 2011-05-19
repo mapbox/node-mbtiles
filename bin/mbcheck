@@ -6,9 +6,7 @@ var options = argv = require('optimist').argv,
     utils = require('..').utils,
     MBTiles = require('..').MBTiles,
     mbtiles,
-    tables = [],
-    zooms = [],
-    tiles = [];
+    zooms = [];
 
 // Show help.
 if (argv.help || argv._.length === 0) {
@@ -159,4 +157,3 @@ Step(
         );
     }
 );
-
