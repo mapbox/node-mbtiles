@@ -1,0 +1,120 @@
+#!/usr/bin/env node
+
+var options = argv = require('optimist').argv;
+var _ = require('underscore');
+var sqlite3 = require('sqlite3');
+var utils = require('..').utils;
+
+// Show help.
+if (argv.help || argv._.length < 1) {
+    console.log('Usage: mbrekey [FILE]');
+    utils.table([['--help', 'Show help.']]);
+    process.exit();
+}
+
+// Grab args.
+var filename = argv._[0];
+
+var db = new sqlite3.Database(filename);
+
+var tables = {};
+db.all("SELECT tbl_name FROM sqlite_master WHERE TYPE = 'table'", function(err, map) {
+    if (err) throw err;
+    map.forEach(function(row) {
+        tables[row.tbl_name] = true;
+    });
+});
+
+var tileQueue = new utils.Queue(changeTileID, 1);
+var gridQueue = new utils.Queue(changeGridID, 1);
+
+db.run('CREATE INDEX "temp_tile_id_idx" ON "map" ("tile_id")', function(err) {
+    if (err) throw err;
+    console.warn('Created temporary index.');
+    db.run('CREATE TEMP TABLE "tile_hash_id" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "hash" TEXT UNIQUE NOT NULL)', function(err) {
+        if (err) throw err;
+        db.run('INSERT INTO tile_hash_id (hash) SELECT tile_id FROM images', function(err) {
+            if (err) throw err;
+            db.get('SELECT MAX(id) AS max FROM tile_hash_id', function(err, max) {
+                if (err) throw err;
+                max = max.max;
+                console.warn('Starting tile update... (%d total)', max);
+                for (var i = 1; i < max; i += 1000) {
+                    tileQueue.add(i);
+                }
+            });
+        });
+    });
+})
+
+tileQueue.on('empty', function() {
+    if (!tables.grid_utfgrid) {
+        deleteTempKey();
+        console.warn("MBtiles file doesn't have interactivity");
+        return;
+    }
+
+    db.run('CREATE TEMP TABLE "grid_hash_id" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "hash" TEXT UNIQUE NOT NULL)', function(err) {
+        if (err) throw err;
+        db.run('INSERT INTO grid_hash_id (hash) SELECT grid_id FROM grid_utfgrid', function(err) {
+            if (err) throw err;
+            db.get('SELECT MAX(id) AS max FROM grid_hash_id', function(err, max) {
+                if (err) throw err;
+                max = max.max;
+                console.warn('Starting grid update... (%d total)', max);
+                for (var i = 1; i < max; i += 1000) {
+                    gridQueue.add(i);
+                }
+            });
+        });
+    });
+});
+
+gridQueue.on('empty', deleteTempKey);
+
+var changedTiles = 0;
+
+function changeTileID(start, done) {
+    db.all('SELECT id, hash FROM tile_hash_id WHERE id >= ? AND id < ?', start, start + 1000, function(err, rows) {
+        if (err) throw err;
+        db.serialize(function() {
+            db.run('BEGIN');
+            rows.forEach(function(row) {
+                db.run('UPDATE images SET tile_id = ? WHERE tile_id = ?', row.id, row.hash);
+                db.run('UPDATE map SET tile_id = ? WHERE tile_id = ?', row.id, row.hash);
+            });
+            db.run('COMMIT', function(err) {
+                if (err) throw err;
+                changedTiles += rows.length;
+                console.warn('Updated %d tiles.', changedTiles);
+                done();
+            });
+        });
+    });
+};
+
+
+var changedGrids = 0;
+function changeGridID(start, done) {
+    db.all('SELECT id, hash FROM grid_hash_id WHERE id >= ? AND id < ?', start, start + 1000, function(err, rows) {
+        if (err) throw err;
+        db.serialize(function() {
+            db.run('BEGIN');
+            rows.forEach(function(row) {
+                db.run('UPDATE grid_key SET grid_id = ? WHERE grid_id = ?', row.id, row.hash);
+                db.run('UPDATE grid_utfgrid SET grid_id = ? WHERE grid_id = ?', row.id, row.hash);
+                db.run('UPDATE map SET grid_id = ? WHERE grid_id = ?', row.id, row.hash);
+            });
+            db.run('COMMIT', function(err) {
+                if (err) throw err;
+                changedGrids += rows.length;
+                console.warn('Updated %d grids.', changedGrids);
+                done();
+            });
+        });
+    });
+};
+
+function deleteTempKey() {
+    db.run('DROP INDEX "temp_tile_id_idx"');
+}
