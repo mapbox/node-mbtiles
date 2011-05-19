@@ -48,8 +48,7 @@ Step(
         mbtiles.metadata('bounds', this.parallel());
     },
     function(err, name, type, description, version, format, bounds) {
-        console.warn('');
-        console.warn('  Metadata');
+        console.warn('Metadata');
         utils.table([
             ['name', name],
             ['type', type],

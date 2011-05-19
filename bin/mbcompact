@@ -115,7 +115,8 @@ Step(
                 .finalize();
             });
         };
-        console.log('00 -------------- 50 -------------- 100');
+        console.warn('00 -------------- 50 -------------- 100');
+        sys.print('');
         doit(1000, 0);
     },
     function(err) {
@@ -135,8 +136,8 @@ Step(
     function(err) {
         if (err) throw err;
         sys.print('\n');
-        console.log('Compact hits %s.', hits);
-        console.log('Compaction complete.');
+        console.warn('Compact hits %s.', hits);
+        console.warn('Compaction complete.');
     }
 );
 
