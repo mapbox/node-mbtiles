@@ -1,6 +1,6 @@
 # mbtiles
 
-MBTiles manipulation utilities and API integration for [tilelive.js][1].
+Utilities and [tilelive][1] integration for the [MBTiles][2] format.
 
 
 ### Installation
@@ -27,4 +27,4 @@ Example of using `tilelive` to serve tiles from an `mbtiles` file.
 
 
 [1]: https://github.com/mapbox/tilelive.js
-
+[2]: http://mbtiles.org
