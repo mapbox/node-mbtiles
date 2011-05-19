@@ -1,0 +1,142 @@
+#!/usr/bin/env node
+
+var options = argv = require('optimist').argv,
+    _ = require('underscore'),
+    Step = require('step'),
+    crypto = require('crypto'),
+    fs = require('fs'),
+    sys = require('sys'),
+    spawn = require('child_process').spawn,
+    MBTiles = require('..').MBTiles,
+    utils = require('..').utils,
+    mbtiles,
+    hits = 0,
+    ids = [];
+
+// Show help.
+if (argv.help || argv._.length < 1) {
+    console.log('Usage: mbcompact [FILE]');
+    utils.table([['--help', 'Show help.']]);
+    process.exit();
+}
+
+// Grab args.
+var filename = argv._[0];
+Step(
+    function() { mbtiles = new MBTiles(filename, this); },
+    function(err) {
+        if (err) throw err;
+        mbtiles.db.all('SELECT name, type '
+            + 'FROM sqlite_master '
+            + 'WHERE type IN (?, ?)',
+            'table',
+            'view',
+            function(err, rows) {
+                if (err) throw err;
+                if (_(rows).any(function(row) { return row.name === 'tiles' && row.type === 'view' })) {
+                    throw new Error('Table is already compacted.');
+                }
+                if (!_(rows).any(function(row) { return row.name === 'tiles' && row.type === 'table' })) {
+                    throw new Error('Tiles table does not exist.');
+                }
+                this();
+            }.bind(this)
+        );
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.setup(this);
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.db.get('SELECT COUNT(*) AS total FROM tiles', this.parallel());
+        mbtiles.db.run('PRAGMA locking_mode=EXCLUSIVE', this.parallel());
+        mbtiles.db.run('PRAGMA journal_mode=TRUNCATE', this.parallel());
+    },
+    function(err, row) {
+        if (err) throw err;
+        if (!row.total) throw new Error('No tiles found');
+
+        var total = row.total;
+        var printed = 0;
+        var done = this;
+        var doit = function(limit, offset) {
+            process.nextTick(function() {
+                mbtiles.db
+                .prepare('SELECT tile_data AS tile_data, zoom_level AS z, tile_column AS x, tile_row AS y FROM tiles LIMIT ? OFFSET ?')
+                .all(limit, offset, function(err, rows) {
+                    var images = [];
+                    var map = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        var tile_id = crypto
+                            .createHash('md5')
+                            .update(rows[i].tile_data)
+                            .digest('hex');
+                        if (!_(ids).include(tile_id)) {
+                            ids.unshift(tile_id);
+                            images.push({
+                                tile_id: tile_id,
+                                tile_data: rows[i].tile_data
+                            });
+                        } else {
+                            hits++;
+                        }
+                        map.push({
+                            tile_id: tile_id,
+                            zoom_level: rows[i].z,
+                            tile_column: rows[i].x,
+                            tile_row: rows[i].y
+                        });
+                    }
+                    Step(
+                        function() {
+                            mbtiles.insert('images', images, this.parallel());
+                            mbtiles.insert('map', map, this.parallel());
+                        },
+                        function(err) {
+                            if (err) throw err;
+
+                            // If IDs has grown over threshold, trim back down.
+                            (ids.length > 1000) && (ids = ids.slice(0, 1000 - 900));
+
+                            var progress = Math.floor(offset / total * 40);
+                            if (progress > printed) {
+                                sys.print((new Array(progress - printed + 1)).join('#'));
+                                printed = progress;
+                            }
+                            if (rows.length === limit) {
+                                doit(limit, offset + limit);
+                            } else {
+                                done();
+                            }
+                        }
+                    );
+                })
+                .finalize();
+            });
+        };
+        console.log('00 -------------- 50 -------------- 100');
+        doit(1000, 0);
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.db.run('DROP TABLE tiles', this);
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.db.run('CREATE VIEW IF NOT EXISTS tiles AS '
+            + 'SELECT map.zoom_level AS zoom_level, '
+            + 'map.tile_column AS tile_column, '
+            + 'map.tile_row AS tile_row, '
+            + 'images.tile_data AS tile_data '
+            + 'FROM map JOIN images ON images.tile_id = map.tile_id;', this.parallel());
+        mbtiles.db.run('VACUUM', this.parallel());
+    },
+    function(err) {
+        if (err) throw err;
+        sys.print('\n');
+        console.log('Compact hits %s.', hits);
+        console.log('Compaction complete.');
+    }
+);
+
