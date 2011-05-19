@@ -15,8 +15,10 @@ var options = argv = require('optimist').argv,
 
 // Show help.
 if (argv.help || argv._.length < 1) {
-    console.log('Usage: mbcompact [FILE]');
-    utils.table([['--help', 'Show help.']]);
+    console.warn('Usage: mbcompact [FILE]');
+    console.warn('  Eliminate duplicate images to reduce mbtiles filesize.');
+    console.warn('Examples:');
+    console.warn('  mbcompact world.mbtiles');
     process.exit();
 }
 

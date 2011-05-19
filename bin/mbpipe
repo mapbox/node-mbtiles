@@ -17,9 +17,10 @@ var options = argv = require('optimist').argv,
 // Show help.
 if (argv.help || argv._.length < 2) {
     console.warn('Usage: mbpipe [COMMAND] [FILE]');
-    utils.table([
-        ['--help', 'Show help.']
-    ]);
+    console.warn('  Pipe each tile to stdin of the specified command and');
+    console.warn('  write stdout into the mbtiles file.');
+    console.warn('Examples:');
+    console.warn('  mbpipe "pngquant 32" world.mbtiles');
     process.exit();
 }
 

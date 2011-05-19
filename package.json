@@ -6,6 +6,12 @@
     "keywords": ["map", "mbtiles"],
     "licenses": [{ "type": "BSD" }],
     "main": "./index",
+    "bin": {
+        "mbcheck": "./bin/mbcheck",
+        "mbcompact": "./bin/mbcompact",
+        "mbpipe": "./bin/mbpipe",
+        "mbrekey": "./bin/mbrekey"
+    },
     "repositories": [{
         "type": "git",
         "url": "http://github.com/mapbox/node-mbtiles.git"

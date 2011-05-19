@@ -10,10 +10,10 @@ var options = argv = require('optimist').argv,
 
 // Show help.
 if (argv.help || argv._.length === 0) {
-    console.warn('Usage: mbcheck [OPTIONS] [FILE]');
-    utils.table([
-        ['--help', 'Show help.']
-    ]);
+    console.warn('Usage: mbcheck [FILE]');
+    console.warn('  Check an mbtiles for missing metadata and tiles.');
+    console.warn('Examples:');
+    console.warn('  mbcheck world.mbtiles');
     process.exit();
 }
 

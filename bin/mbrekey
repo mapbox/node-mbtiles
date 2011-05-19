@@ -7,8 +7,10 @@ var utils = require('..').utils;
 
 // Show help.
 if (argv.help || argv._.length < 1) {
-    console.log('Usage: mbrekey [FILE]');
-    utils.table([['--help', 'Show help.']]);
+    console.warn('Usage: mbrekey [FILE]');
+    console.warn('  Rekey a compacted mbtiles to save space.');
+    console.warn('Examples:');
+    console.warn('  mbrekey world.mbtiles');
     process.exit();
 }
 
