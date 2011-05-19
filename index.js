@@ -10,7 +10,7 @@ module.exports = {
             create: function(callback) {
                 var resource = new MBTiles(
                     datasource,
-                    function() { callback(resource); }
+                    function(err) { callback(err, resource); }
                 );
             },
             destroy: function(resource) {
