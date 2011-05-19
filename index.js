@@ -1,8 +1,10 @@
 var MBTiles = require('./lib/mbtiles'),
+    utils = require('./lib/utils'),
     Step = require('step');
 
 module.exports = {
     MBTiles: MBTiles,
+    utils: utils,
     pool: function(datasource) {
         return {
             create: function(callback) {

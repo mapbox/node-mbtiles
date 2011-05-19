@@ -1,0 +1,162 @@
+#!/usr/bin/env node
+
+var options = argv = require('optimist').argv,
+    _ = require('underscore'),
+    Step = require('step'),
+    utils = require('..').utils,
+    MBTiles = require('..').MBTiles,
+    mbtiles,
+    tables = [],
+    zooms = [],
+    tiles = [];
+
+// Show help.
+if (argv.help || argv._.length === 0) {
+    console.warn('Usage: mbcheck [OPTIONS] [FILE]');
+    utils.table([
+        ['--help', 'Show help.']
+    ]);
+    process.exit();
+}
+
+// Wishlist:
+// ---------
+// - check that tiles exist for specified bounds
+
+Step(
+    function() { mbtiles = new MBTiles(argv._[0], this); },
+    function() { mbtiles.integrity(this); },
+    function(err) {
+        if (err) throw err;
+        mbtiles.exists('tiles', function(err, exists) {
+            if (!exists) throw new Error('`tiles` table does not exist.');
+            this();
+        }.bind(this));
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.exists('metadata', function(err, exists) {
+            if (!exists) throw new Error('`metadata` table does not exist.');
+            this();
+        }.bind(this));
+    },
+    function(err) {
+        if (err) throw err;
+        mbtiles.metadata('name', this.parallel());
+        mbtiles.metadata('type', this.parallel());
+        mbtiles.metadata('desciption', this.parallel());
+        mbtiles.metadata('version', this.parallel());
+        mbtiles.metadata('format', this.parallel());
+        mbtiles.metadata('bounds', this.parallel());
+    },
+    function(err, name, type, description, version, format, bounds) {
+        console.warn('');
+        console.warn('  Metadata');
+        utils.table([
+            ['name', name],
+            ['type', type],
+            ['description', description],
+            ['vesion', version],
+            ['format', format],
+            ['bounds', bounds]
+        ]);
+        this();
+    },
+    function(err) {
+        if (err) throw err;
+        Step(
+            function() {
+                var group = this.group(),
+                    query = mbtiles.db.prepare(
+                        'SELECT zoom_level AS zoom, ' +
+                        'COUNT(zoom_level) AS count ' +
+                        'FROM tiles ' +
+                        'WHERE zoom_level = ?'
+                    );
+                for (var i = 0; i < 30; i++) {
+                    query.get(i, group());
+                }
+                query.finalize();
+            },
+            function(err, rows) {
+                if (err) throw err;
+                zooms = rows;
+                do {
+                    var last = zooms.pop();
+                    if (last.count) zooms.push(last);
+                } while(!last.count);
+                do {
+                    var first = zooms.shift();
+                    if (first.count) zooms.unshift(first);
+                } while(!first.count);
+                this();
+            }.bind(this)
+        );
+    },
+    function(err) {
+        if (err) throw err;
+        Step(
+            function() {
+                var group = this.group(),
+                    query = mbtiles.db.prepare(
+                        'SELECT MAX(tile_column) AS maxx, ' +
+                        'MIN(tile_column) AS minx, ' +
+                        'MAX(tile_row) AS maxy, ' +
+                        'MIN(tile_row) AS miny, ' +
+                        'zoom_level AS zoom ' +
+                        'FROM tiles ' +
+                        'WHERE zoom_level = ?'
+                    );
+                for (var i = 0; i < zooms.length; i++) {
+                    query.get(zooms[i].zoom, group());
+                }
+                query.finalize();
+            },
+            function(err, rows) {
+                if (err) throw err;
+
+                var group = this.group(),
+                    query = mbtiles.db.prepare(
+                        'SELECT zoom_level AS zoom, ' +
+                        'COUNT(zoom_level) AS count, ' +
+                        '? AS expected ' +
+                        'FROM tiles ' +
+                        'WHERE zoom_level = ? AND ' +
+                        'tile_column >= ? AND ' +
+                        'tile_column <= ? AND ' +
+                        'tile_row >= ? AND ' +
+                        'tile_row <= ?'
+                    );
+                for (var i = 0; i < rows.length; i++) {
+                    var expected = (rows[i].maxx - rows[i].minx + 1) * (rows[i].maxy - rows[i].miny + 1);
+                    query.get(
+                        expected,
+                        rows[i].zoom,
+                        rows[i].minx,
+                        rows[i].maxx,
+                        rows[i].miny,
+                        rows[i].maxy,
+                        group()
+                    );
+                }
+                query.finalize();
+            },
+            function(err, rows) {
+                if (err) throw err;
+                console.warn('');
+                var output = [];
+                output.push(['Z', 'Tiles', 'Missing']);
+                _(rows).each(function(row, index) {
+                    output.push([
+                        row.zoom,
+                        zooms[index].count,
+                        row.expected - row.count
+                    ]);
+                });
+                utils.table(output);
+                this();
+            }.bind(this)
+        );
+    }
+);
+
