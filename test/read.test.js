@@ -19,7 +19,7 @@ exports['get metadata'] = function(beforeExit) {
     mbtiles.metadata('version', function(err, value) { if (err) throw err; completion.version = value; });
     mbtiles.metadata('formatter', function(err, value) { if (err) throw err; completion.formatter = value; });
     mbtiles.metadata('bounds', function(err, value) { if (err) throw err; completion.bounds = value; });
-    mbtiles.metadata('invalid', function(err, value) { completion.invalid = err; });
+    mbtiles.metadata('invalid', function(err, value) { completion.invalid = err.message; });
 
     beforeExit(function() {
         assert.deepEqual(completion, {
@@ -36,7 +36,7 @@ exports['get metadata'] = function(beforeExit) {
 
 function yieldsError(status, error, msg) {
     return function(err) {
-        assert.equal(err, msg);
+        assert.equal(err.message, msg);
         status[error]++;
     };
 }
