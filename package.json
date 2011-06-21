@@ -26,6 +26,7 @@
         "optimist": "0.2.x",
         "sqlite3": "2.0.x",
         "step": "0.0.x",
+        "get": "0.3.x",
         "underscore": "1.1.x",
         "zlib": "1.0.x"
     },
