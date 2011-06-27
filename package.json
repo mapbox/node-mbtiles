@@ -5,7 +5,7 @@
     "url": "http://github.com/mapbox/node-mbtiles",
     "keywords": ["map", "mbtiles"],
     "licenses": [{ "type": "BSD" }],
-    "main": "./index",
+    "main": "./lib/mbtiles",
     "bin": {
         "mbcheck": "./bin/mbcheck",
         "mbcompact": "./bin/mbcompact",
