@@ -1,6 +1,6 @@
 var fs = require('fs');
 var assert = require('assert');
-var MBTiles = require('..').MBTiles;
+var MBTiles = require('..');
 
 var fixtureDir = __dirname + '/fixtures/output';
 
