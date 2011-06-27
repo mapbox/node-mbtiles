@@ -2,12 +2,16 @@ var fs = require('fs');
 var assert = require('assert');
 var MBTiles = require('..');
 
+
 var fixtures = {
     plain_1: __dirname + '/fixtures/plain_1.mbtiles',
     plain_2: __dirname + '/fixtures/plain_2.mbtiles',
     plain_3: __dirname + '/fixtures/plain_3.mbtiles',
-    plain_4: __dirname + '/fixtures/plain_4.mbtiles'
+    plain_4: __dirname + '/fixtures/plain_4.mbtiles',
+    non_existent: __dirname + '/fixtures/non_existent.mbtiles'
 };
+
+try { fs.unlink(fixtures.non_existent); } catch (err) {}
 
 exports['get metadata'] = function(beforeExit) {
     var completion = {};
@@ -205,6 +209,34 @@ exports['get grids from file without interaction'] = function(beforeExit) {
     mbtiles.getGrid(0, 14, 4, yieldsError(status, 'error', 'Grid does not exist'));
     mbtiles.getGrid(0, 7, 3, yieldsError(status, 'error', 'Grid does not exist'));
     mbtiles.getGrid(6, 2, 3, yieldsError(status, 'error', 'Grid does not exist'));
+
+    beforeExit(function() {
+        assert.equal(status.success, 0);
+        assert.equal(status.error, 14);
+    });
+};
+
+exports['get tiles from non-existent file'] = function(beforeExit) {
+    var status = {
+        success: 0,
+        error: 0
+    };
+
+    var mbtiles = new MBTiles(fixtures.non_existent);
+    mbtiles.getTile(1, 0, 0, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(0, 0, -1, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(0, -1, 0, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(1, 8, 3, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(-3, 0, 2, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(2, 3, 18, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(0, 0, 4, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(3, 8, 4, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(4, 8, 4, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(5, 8, 4, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(13, 4, 4, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(0, 14, 4, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(0, 7, 3, yieldsError(status, 'error', 'Tile does not exist'));
+    mbtiles.getTile(6, 2, 3, yieldsError(status, 'error', 'Tile does not exist'));
 
     beforeExit(function() {
         assert.equal(status.success, 0);
