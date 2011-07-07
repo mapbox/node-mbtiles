@@ -14,27 +14,35 @@ var fixtures = {
 try { fs.unlink(fixtures.non_existent); } catch (err) {}
 
 exports['get metadata'] = function(beforeExit) {
-    var completion = {};
+    var completed = false;
 
-    var mbtiles = new MBTiles(fixtures.plain_1);
-    mbtiles.metadata('name', function(err, value) { if (err) throw err; completion.name = value; });
-    mbtiles.metadata('type', function(err, value) { if (err) throw err; completion.type = value; });
-    mbtiles.metadata('description', function(err, value) { if (err) throw err; completion.description = value; });
-    mbtiles.metadata('version', function(err, value) { if (err) throw err; completion.version = value; });
-    mbtiles.metadata('formatter', function(err, value) { if (err) throw err; completion.formatter = value; });
-    mbtiles.metadata('bounds', function(err, value) { if (err) throw err; completion.bounds = value; });
-    mbtiles.metadata('invalid', function(err, value) { completion.invalid = err.message; });
+    new MBTiles(fixtures.plain_1, function(err, mbtiles) {
+        mbtiles.getInfo(function(err, data) {
+            completed = true;
+            if (err) throw err;
+
+            assert.deepEqual({
+                name: 'plain_1',
+                description: 'demo description',
+                version: '1.0.3',
+                scheme: 'tms',
+                minzoom: 0,
+                maxzoom: 4,
+                formatter: null,
+                center: [ 0, 7.500000001278025, 2 ],
+                bounds: [ -179.9999999749438, -69.99999999526695, 179.9999999749438, 84.99999999782301 ],
+
+                // These aren't part of TileJSON, but exist in an MBTiles file.
+                filesize: 561152,
+                type: 'baselayer',
+                id: 'plain_1',
+                basename: 'plain_1.mbtiles'
+            }, data);
+        })
+    });
 
     beforeExit(function() {
-        assert.deepEqual(completion, {
-            name: 'plain_1',
-            type: 'baselayer',
-            description: 'demo description',
-            version: '1.0.3',
-            formatter: null,
-            bounds: '-179.9999999749438,-69.99999999526695,179.9999999749438,84.99999999782301',
-            invalid: 'Key does not exist'
-        });
+        assert.ok(completed);
     });
 };
 
