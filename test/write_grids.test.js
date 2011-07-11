@@ -7,12 +7,12 @@ var MBTiles = require('..');
 var fixtureDir = __dirname + '/fixtures/output';
 
 // Recreate output directory to remove previous tests.
-try { fs.unlinkSync(fixtureDir + '/write_1.mbtiles'); } catch(err) {}
+try { fs.unlinkSync(fixtureDir + '/write_2.mbtiles'); } catch(err) {}
 try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
 
 exports['test mbtiles file creation'] = function(beforeExit) {
     var completed = { written: 0, read: 0 };
-    new MBTiles(fixtureDir + '/write_1.mbtiles', function(err, mbtiles) {
+    new MBTiles(fixtureDir + '/write_2.mbtiles', function(err, mbtiles) {
         completed.open = true;
         if (err) throw err;
 
