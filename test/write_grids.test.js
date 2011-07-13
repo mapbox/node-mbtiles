@@ -7,12 +7,12 @@ var MBTiles = require('..');
 var fixtureDir = __dirname + '/fixtures/output';
 
 // Recreate output directory to remove previous tests.
-try { fs.unlinkSync(fixtureDir + '/write_1.mbtiles'); } catch(err) {}
+try { fs.unlinkSync(fixtureDir + '/write_2.mbtiles'); } catch(err) {}
 try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
 
 exports['test mbtiles file creation'] = function(beforeExit) {
     var completed = { written: 0, read: 0 };
-    new MBTiles(fixtureDir + '/write_1.mbtiles', function(err, mbtiles) {
+    new MBTiles(fixtureDir + '/write_2.mbtiles', function(err, mbtiles) {
         completed.open = true;
         if (err) throw err;
 
@@ -20,23 +20,23 @@ exports['test mbtiles file creation'] = function(beforeExit) {
             completed.started = true;
             if (err) throw err;
 
-            fs.readdirSync(__dirname + '/fixtures/images/').forEach(insertTile);
+            fs.readdirSync(__dirname + '/fixtures/grids/').forEach(insertGrid);
         });
 
-        function insertTile(file) {
-            var coords = file.match(/^plain_1_(\d+)_(\d+)_(\d+).png$/);
+        function insertGrid(file) {
+            var coords = file.match(/^plain_2_(\d+)_(\d+)_(\d+).json$/);
             if (!coords) return;
 
-            // Flip Y coordinate because file names are TMS, but .putTile() expects XYZ.
+            // Flip Y coordinate because file names are TMS, but .putGrid() expects XYZ.
             coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
 
-            fs.readFile(__dirname + '/fixtures/images/' + file, function(err, tile) {
+            fs.readFile(__dirname + '/fixtures/grids/' + file, 'utf8', function(err, grid) {
                 if (err) throw err;
 
-                mbtiles.putTile(coords[3] | 0, coords[1] | 0, coords[2] | 0, tile, function(err) {
+                mbtiles.putGrid(coords[3] | 0, coords[1] | 0, coords[2] | 0, JSON.parse(grid), function(err) {
                     if (err) throw err;
                     completed.written++;
-                    if (completed.written === 285) {
+                    if (completed.written === 241) {
                         mbtiles.stopWriting(function(err) {
                             completed.stopped = true;
                             if (err) throw err;
@@ -48,14 +48,14 @@ exports['test mbtiles file creation'] = function(beforeExit) {
         }
 
         function verifyWritten() {
-            fs.readdirSync(__dirname + '/fixtures/images/').forEach(function(file) {
-                var coords = file.match(/^plain_1_(\d+)_(\d+)_(\d+).png$/);
+            fs.readdirSync(__dirname + '/fixtures/grids/').forEach(function(file) {
+                var coords = file.match(/^plain_2_(\d+)_(\d+)_(\d+).json$/);
                 if (coords) {
                     // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
                     coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
-                    mbtiles.getTile(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, tile) {
+                    mbtiles.getGrid(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, grid) {
                         if (err) throw err;
-                        assert.deepEqual(tile, fs.readFileSync(__dirname + '/fixtures/images/' + file));
+                        assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
                         completed.read++;
                     });
                 }
@@ -67,8 +67,8 @@ exports['test mbtiles file creation'] = function(beforeExit) {
         assert.deepEqual({
             open: true,
             started: true,
-            written: 285,
-            read: 285,
+            written: 241,
+            read: 241,
             stopped: true
         }, completed);
     })

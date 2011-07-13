@@ -4,7 +4,7 @@ var options = argv = require('optimist').argv,
     _ = require('underscore'),
     Step = require('step'),
     utils = require('..').utils,
-    MBTiles = require('..').MBTiles,
+    MBTiles = require('..'),
     mbtiles,
     zooms = [];
 
@@ -53,7 +53,7 @@ Step(
             ['name', name],
             ['type', type],
             ['description', description],
-            ['vesion', version],
+            ['version', version],
             ['format', format],
             ['bounds', bounds]
         ]);

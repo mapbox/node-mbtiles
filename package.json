@@ -1,11 +1,16 @@
 {
     "name": "mbtiles",
-    "version": "0.0.5",
+    "version": "0.1.0",
     "description": "Utilities and tilelive integration for the MBTiles format.",
     "url": "http://github.com/mapbox/node-mbtiles",
+    "author": {
+        "name": "MapBox",
+        "url": "http://mapbox.com/",
+        "email": "info@mapbox.com"
+    },
     "keywords": ["map", "mbtiles"],
     "licenses": [{ "type": "BSD" }],
-    "main": "./index",
+    "main": "./lib/mbtiles",
     "bin": {
         "mbcheck": "./bin/mbcheck",
         "mbcompact": "./bin/mbcompact",
@@ -20,12 +25,14 @@
         "Tom MacWright <tmcw>",
         "Will White <willwhite>",
         "Dane Springmeyer <springmeyer>",
-        "Young Hahn <yhahn>"
+        "Young Hahn <yhahn>",
+        "Konstantin Käfer <kkaefer>"
     ],
     "dependencies": {
         "optimist": "0.2.x",
         "sqlite3": "2.0.x",
         "step": "0.0.x",
+        "sphericalmercator": "1.0.x",
         "underscore": "1.1.x",
         "zlib": "1.0.x"
     },
