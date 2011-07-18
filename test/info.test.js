@@ -49,14 +49,15 @@ exports['get metadata'] = function(beforeExit) {
 };
 
 exports['get/put metadata from empty file'] = function(beforeExit) {
-    var completed = false;
+    var completion = {};
 
     new MBTiles(fixtures.empty, function(err, mbtiles) {
         if (err) throw err;
+        completion.open = true;
 
         mbtiles.getInfo(function(err, data) {
-            completed = true;
             if (err) throw err;
+            completion.info = true;
 
             assert.deepEqual({
                 basename: "empty.mbtiles",
@@ -64,7 +65,53 @@ exports['get/put metadata from empty file'] = function(beforeExit) {
                 id: "empty",
                 scheme: "tms"
             }, data);
-        })
+
+            mbtiles.putInfo({ version: '1.0.0' }, function(err) {
+                assert.ok(err);
+                assert.equal(err.message, 'MBTiles not in write mode');
+                completion.putFail = true;
+
+                mbtiles.startWriting(function(err) {
+                    if (err) throw err;
+                    completion.startWriting = true;
+
+                    mbtiles.putInfo({ version: '1.0.0' }, function(err) {
+                        if (err) throw err;
+                        completion.written = true;
+
+                        mbtiles.stopWriting(function(err) {
+                            if (err) throw err;
+                            completion.stopWriting = true;
+
+                            mbtiles.getInfo(function(err, data) {
+                                if (err) throw err;
+                                completion.updatedInfo = true;
+
+                                assert.deepEqual({
+                                    basename: "empty.mbtiles",
+                                    filesize: 16384,
+                                    id: "empty",
+                                    scheme: "tms",
+                                    version: "1.0.0"
+                                }, data);
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+    beforeExit(function() {
+        assert.deepEqual(completion, {
+            info: true,
+            open: true,
+            putFail: true,
+            startWriting: true,
+            stopWriting: true,
+            updatedInfo: true,
+            written: true
+        });
     });
 };
 
