@@ -28,7 +28,7 @@ Step(
     function() { mbtiles = new MBTiles(filename, this); },
     function(err) {
         if (err) throw err;
-        mbtiles.db.all('SELECT name, type '
+        mbtiles._db.all('SELECT name, type '
             + 'FROM sqlite_master '
             + 'WHERE type IN (?, ?)',
             'table',
@@ -47,13 +47,13 @@ Step(
     },
     function(err) {
         if (err) throw err;
-        mbtiles.setup(this);
+        mbtiles._setup(this);
     },
     function(err) {
         if (err) throw err;
-        mbtiles.db.get('SELECT COUNT(*) AS total FROM tiles', this.parallel());
-        mbtiles.db.run('PRAGMA locking_mode=EXCLUSIVE', this.parallel());
-        mbtiles.db.run('PRAGMA journal_mode=TRUNCATE', this.parallel());
+        mbtiles._db.get('SELECT COUNT(*) AS total FROM tiles', this.parallel());
+        mbtiles._db.run('PRAGMA locking_mode=EXCLUSIVE', this.parallel());
+        mbtiles._db.run('PRAGMA journal_mode=TRUNCATE', this.parallel());
     },
     function(err, row) {
         if (err) throw err;
@@ -64,7 +64,7 @@ Step(
         var done = this;
         var doit = function(limit, offset) {
             process.nextTick(function() {
-                mbtiles.db
+                mbtiles._db
                 .prepare('SELECT tile_data AS tile_data, zoom_level AS z, tile_column AS x, tile_row AS y FROM tiles LIMIT ? OFFSET ?')
                 .all(limit, offset, function(err, rows) {
                     var images = [];
@@ -92,8 +92,8 @@ Step(
                     }
                     Step(
                         function() {
-                            mbtiles.insert('images', images, this.parallel());
-                            mbtiles.insert('map', map, this.parallel());
+                            mbtiles._insert('images', images, this.parallel());
+                            mbtiles._insert('map', map, this.parallel());
                         },
                         function(err) {
                             if (err) throw err;
@@ -123,17 +123,17 @@ Step(
     },
     function(err) {
         if (err) throw err;
-        mbtiles.db.run('DROP TABLE tiles', this);
+        mbtiles._db.run('DROP TABLE tiles', this);
     },
     function(err) {
         if (err) throw err;
-        mbtiles.db.run('CREATE VIEW IF NOT EXISTS tiles AS '
+        mbtiles._db.run('CREATE VIEW IF NOT EXISTS tiles AS '
             + 'SELECT map.zoom_level AS zoom_level, '
             + 'map.tile_column AS tile_column, '
             + 'map.tile_row AS tile_row, '
             + 'images.tile_data AS tile_data '
             + 'FROM map JOIN images ON images.tile_id = map.tile_id;', this.parallel());
-        mbtiles.db.run('VACUUM', this.parallel());
+        mbtiles._db.run('VACUUM', this.parallel());
     },
     function(err) {
         if (err) throw err;

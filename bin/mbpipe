@@ -36,22 +36,22 @@ Step(
     function(err) {
         if (err) throw err;
         Step(
-            function() { mbtiles.db.run('PRAGMA synchronous=0', this); },
-            function() { mbtiles.db.run('PRAGMA locking_mode=EXCLUSIVE', this); },
-            function() { mbtiles.db.run('PRAGMA journal_mode=TRUNCATE', this); },
+            function() { mbtiles._db.run('PRAGMA synchronous=0', this); },
+            function() { mbtiles._db.run('PRAGMA locking_mode=EXCLUSIVE', this); },
+            function() { mbtiles._db.run('PRAGMA journal_mode=TRUNCATE', this); },
             this
         );
     },
     function(err) {
         if (err) throw err;
-        mbtiles.exists('tiles', function(err, exists) {
+        mbtiles._exists('tiles', function(err, exists) {
             if (exists) table = 'tiles';
             this();
         }.bind(this));
     },
     function(err) {
         if (err) throw err;
-        mbtiles.exists('images', function(err, exists) {
+        mbtiles._exists('images', function(err, exists) {
             if (exists) table = 'images';
             this();
         }.bind(this));
@@ -59,7 +59,7 @@ Step(
     function(err) {
         if (err) throw err;
         if (!table) throw new Error('No usable image table found.');
-        mbtiles.db.get('SELECT COUNT(tile_data) AS total FROM ' + table, function(err, row) {
+        mbtiles._db.get('SELECT COUNT(tile_data) AS total FROM ' + table, function(err, row) {
             total = row.total;
             this();
         }.bind(this));
@@ -73,8 +73,8 @@ Step(
         var doit = function(table, limit, offset) {
             process.nextTick(function() {
                 var query = table === 'images'
-                    ? mbtiles.db.prepare('SELECT tile_data AS tile_data, tile_id AS id FROM images ORDER BY tile_id ASC LIMIT ? OFFSET ?')
-                    : mbtiles.db.prepare('SELECT tile_data AS tile_data, zoom_level AS z, tile_column AS x, tile_row AS y FROM tiles ORDER BY z, x, y LIMIT ? OFFSET ?');
+                    ? mbtiles._db.prepare('SELECT tile_data AS tile_data, tile_id AS id FROM images ORDER BY tile_id ASC LIMIT ? OFFSET ?')
+                    : mbtiles._db.prepare('SELECT tile_data AS tile_data, zoom_level AS z, tile_column AS x, tile_row AS y FROM tiles ORDER BY z, x, y LIMIT ? OFFSET ?');
                 query.all(limit, offset, function(err, rows) {
                     Step(
                         function() {
@@ -95,14 +95,14 @@ Step(
                                 child.on('exit', function(code) {
                                     if (code) return callback(null, null);
                                     if (table === 'images') {
-                                        mbtiles.db.run(
+                                        mbtiles._db.run(
                                             'INSERT OR REPLACE INTO images (tile_id, tile_data) VALUES(?, ?)',
                                             row.id,
                                             row.piped,
                                             callback
                                         );
                                     } else {
-                                        mbtiles.db.run(
+                                        mbtiles._db.run(
                                             'INSERT OR REPLACE INTO tiles (zoom_level, tile_column, tile_row, tile_data) VALUES(?, ?, ?, ?)',
                                             row.z,
                                             row.x,
@@ -126,7 +126,7 @@ Step(
                             if (rows.length === limit) {
                                 doit(table, limit, offset + limit);
                             } else {
-                                mbtiles.db.run('VACUUM', function() {
+                                mbtiles._db.run('VACUUM', function() {
                                     sys.print('\n');
                                     console.warn('Pipe complete.');
                                     done();

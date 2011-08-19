@@ -23,29 +23,29 @@ if (argv.help || argv._.length === 0) {
 
 Step(
     function() { mbtiles = new MBTiles(argv._[0], this); },
-    function() { mbtiles.integrity(this); },
+    function() { mbtiles._integrity(this); },
     function(err) {
         if (err) throw err;
-        mbtiles.exists('tiles', function(err, exists) {
+        mbtiles._exists('tiles', function(err, exists) {
             if (!exists) throw new Error('`tiles` table does not exist.');
             this();
         }.bind(this));
     },
     function(err) {
         if (err) throw err;
-        mbtiles.exists('metadata', function(err, exists) {
+        mbtiles._exists('metadata', function(err, exists) {
             if (!exists) throw new Error('`metadata` table does not exist.');
             this();
         }.bind(this));
     },
     function(err) {
         if (err) throw err;
-        mbtiles.metadata('name', this.parallel());
-        mbtiles.metadata('type', this.parallel());
-        mbtiles.metadata('desciption', this.parallel());
-        mbtiles.metadata('version', this.parallel());
-        mbtiles.metadata('format', this.parallel());
-        mbtiles.metadata('bounds', this.parallel());
+        mbtiles._metadata('name', this.parallel());
+        mbtiles._metadata('type', this.parallel());
+        mbtiles._metadata('desciption', this.parallel());
+        mbtiles._metadata('version', this.parallel());
+        mbtiles._metadata('format', this.parallel());
+        mbtiles._metadata('bounds', this.parallel());
     },
     function(err, name, type, description, version, format, bounds) {
         console.warn('Metadata');
@@ -64,7 +64,7 @@ Step(
         Step(
             function() {
                 var group = this.group(),
-                    query = mbtiles.db.prepare(
+                    query = mbtiles._db.prepare(
                         'SELECT zoom_level AS zoom, ' +
                         'COUNT(zoom_level) AS count ' +
                         'FROM tiles ' +
@@ -95,7 +95,7 @@ Step(
         Step(
             function() {
                 var group = this.group(),
-                    query = mbtiles.db.prepare(
+                    query = mbtiles._db.prepare(
                         'SELECT MAX(tile_column) AS maxx, ' +
                         'MIN(tile_column) AS minx, ' +
                         'MAX(tile_row) AS maxy, ' +
@@ -113,7 +113,7 @@ Step(
                 if (err) throw err;
 
                 var group = this.group(),
-                    query = mbtiles.db.prepare(
+                    query = mbtiles._db.prepare(
                         'SELECT zoom_level AS zoom, ' +
                         'COUNT(zoom_level) AS count, ' +
                         '? AS expected ' +
