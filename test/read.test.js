@@ -10,7 +10,8 @@ var fixtures = {
     plain_2: __dirname + '/fixtures/plain_2.mbtiles',
     plain_3: __dirname + '/fixtures/plain_3.mbtiles',
     plain_4: __dirname + '/fixtures/plain_4.mbtiles',
-    non_existent: __dirname + '/fixtures/non_existent.mbtiles'
+    non_existent: __dirname + '/fixtures/non_existent.mbtiles',
+    corrupt: __dirname + '/fixtures/corrupt.mbtiles'
 };
 
 try { fs.unlink(fixtures.non_existent); } catch (err) {}
@@ -222,5 +223,25 @@ exports['get tiles from non-existent file'] = function(beforeExit) {
     beforeExit(function() {
         assert.equal(status.success, 0);
         assert.equal(status.error, 14);
+    });
+};
+
+exports['get tiles from corrupt file'] = function(beforeExit) {
+    var status = {
+        success: 0,
+        error: 0
+    };
+    var error;
+    new MBTiles(fixtures.corrupt, function(err, mbtiles) {
+        error = err;
+    });
+
+    beforeExit(function() {
+        assert.throws(
+            function() {
+                throw err;
+            },
+            Error
+        );
     });
 };
