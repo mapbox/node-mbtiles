@@ -1,3 +1,7 @@
+# 0.1.14
+
+- Allows `template` key in `metadata` table.
+
 # 0.1.0
 
 - Modified interface to conform to Tilesource interface:
