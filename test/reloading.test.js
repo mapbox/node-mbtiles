@@ -53,7 +53,6 @@ exports['test file reloading during copying'] = function(beforeExit) {
                     var returned = 0;
                     tiles.forEach(function(c) {
                         mbtiles.getTile(c[0], c[1], c[2], function(err, tile) {
-                            if (++returned === tiles.length) mbtiles._close();
                             if (err) assert.ok(false, "Couldn't load tile " + c[0] + '/' + c[1] + '/' + c[2]);
                             else status.success++;
                         });
