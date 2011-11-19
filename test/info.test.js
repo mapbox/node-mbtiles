@@ -2,7 +2,6 @@ process.env.NODE_ENV = 'test';
 
 var fs = require('fs');
 var Step = require('step');
-var assert = require('assert');
 var MBTiles = require('..');
 
 var fixtures = {
@@ -13,7 +12,7 @@ var fixtures = {
 try { fs.unlink(fixtures.empty); } catch (err) {}
 
 
-exports['get metadata'] = function(beforeExit) {
+exports['get metadata'] = function(beforeExit, assert) {
     var completed = false;
 
     new MBTiles(fixtures.plain_1, function(err, mbtiles) {
@@ -48,7 +47,7 @@ exports['get metadata'] = function(beforeExit) {
     });
 };
 
-exports['get/put metadata from empty file'] = function(beforeExit) {
+exports['get/put metadata from empty file'] = function(beforeExit, assert) {
     var completion = {};
 
     new MBTiles(fixtures.empty, function(err, mbtiles) {

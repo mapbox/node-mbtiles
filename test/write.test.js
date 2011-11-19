@@ -10,7 +10,7 @@ var fixtureDir = __dirname + '/fixtures/output';
 try { fs.unlinkSync(fixtureDir + '/write_1.mbtiles'); } catch(err) {}
 try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
 
-exports['test mbtiles file creation'] = function(beforeExit) {
+exports['test mbtiles file creation'] = function(beforeExit, assert) {
     var completed = { written: 0, read: 0 };
     new MBTiles(fixtureDir + '/write_1.mbtiles', function(err, mbtiles) {
         completed.open = true;

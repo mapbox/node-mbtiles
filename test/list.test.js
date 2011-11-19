@@ -2,7 +2,6 @@ process.env.NODE_ENV = 'test';
 
 var fs = require('fs');
 var Step = require('step');
-var assert = require('assert');
 var MBTiles = require('..');
 
 var fixtures = {
@@ -12,17 +11,17 @@ var fixtures = {
 try { fs.unlink(fixtures.doesnotexist); } catch (err) {}
 
 
-exports['list'] = function(beforeExit) {
+exports['list'] = function(beforeExit, assert) {
     var completed = false; beforeExit(function() { assert.ok(completed); });
 
     MBTiles.list(fixtures.doesnotexist, function(err, list) {
         assert.ok(err);
-        assert.equal(err.message, 'ENOENT, No such file or directory');
+        assert.ok(err.code.match(/^ENOENT/));
         
         MBTiles.list(fixtures.doesnotexist, function(err, list) {
             completed = true;
             assert.ok(err);
-            assert.equal(err.message, 'ENOENT, No such file or directory');
+            assert.ok(err.code.match(/^ENOENT/));
         });
     });
 };
