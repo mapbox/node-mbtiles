@@ -1,7 +1,6 @@
 process.env.NODE_ENV = 'test';
 
 var fs = require('fs');
-var assert = require('assert');
 var MBTiles = require('..');
 
 
@@ -16,15 +15,17 @@ var fixtures = {
 
 try { fs.unlink(fixtures.non_existent); } catch (err) {}
 
-function yieldsError(status, error, msg) {
+function yieldsError(assert, status, error, msg) {
     return function(err) {
         assert.ok(err);
-        assert.equal(err.message, msg);
+        var re = new RegExp( "^" + msg, "i");
+        assert.ok(err.message.match(re));
         status[error]++;
     };
 }
 
-exports['get tiles'] = function(beforeExit) {
+
+exports['get tiles'] = function(beforeExit, assert) {
     var status = {
         success: 0,
         error: 0
@@ -45,13 +46,13 @@ exports['get tiles'] = function(beforeExit) {
             }
         });
 
-        mbtiles.getTile(0, 1, 0, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(-1, 0, 0, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(0, 0, 1, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 1, -1, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(2, -3, 3, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(18, 2, 262140, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 0, 15, yieldsError(status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(0, 1, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(-1, 0, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(0, 0, 1, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(3, 1, -1, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(2, -3, 3, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(18, 2, 262140, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(4, 0, 15, yieldsError(assert, status, 'error', 'Tile does not exist'));
     });
 
 
@@ -61,7 +62,7 @@ exports['get tiles'] = function(beforeExit) {
     });
 };
 
-exports['get grids'] = function(beforeExit) {
+exports['get grids'] = function(beforeExit, assert) {
     var status = {
         success: 0,
         error: 0
@@ -82,13 +83,13 @@ exports['get grids'] = function(beforeExit) {
             }
         });
 
-        mbtiles.getGrid(0, 1, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, 1, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, -1, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 3, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 262140, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 15, yieldsError(status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 0, 1, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 1, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(2, -3, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(18, 2, 262140, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 0, 15, yieldsError(assert, status, 'error', 'Grid does not exist'));
     });
 
 
@@ -99,7 +100,7 @@ exports['get grids'] = function(beforeExit) {
 };
 
 
-exports['get grids from file without interaction'] = function(beforeExit) {
+exports['get grids from file without interaction'] = function(beforeExit, assert) {
     var status = {
         success: 0,
         error: 0
@@ -107,20 +108,20 @@ exports['get grids from file without interaction'] = function(beforeExit) {
 
     new MBTiles(fixtures.plain_1, function(err, mbtiles) {
         if (err) throw err;
-        mbtiles.getGrid(0, 1, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, -1, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 3, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 3, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 4, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 5, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 13, 4, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 14, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 0, 7, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 6, 2, yieldsError(status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 0, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 1, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(2, -3, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(18, 2, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 3, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 4, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 5, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 13, 4, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 0, 14, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 0, 7, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 6, 2, yieldsError(assert, status, 'error', 'Grid does not exist'));
     });
 
     beforeExit(function() {
@@ -129,7 +130,7 @@ exports['get grids from file without interaction'] = function(beforeExit) {
     });
 };
 
-exports['get grids with different schema'] = function(beforeExit) {
+exports['get grids with different schema'] = function(beforeExit, assert) {
     var status = {
         success: 0,
         error: 0
@@ -150,13 +151,13 @@ exports['get grids with different schema'] = function(beforeExit) {
             }
         });
 
-        mbtiles.getGrid(0, 1, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, 1, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, -1, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 3, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 262140, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 15, yieldsError(status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 0, 1, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 1, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(2, -3, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(18, 2, 262140, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 0, 15, yieldsError(assert, status, 'error', 'Grid does not exist'));
     });
 
     beforeExit(function() {
@@ -166,7 +167,7 @@ exports['get grids with different schema'] = function(beforeExit) {
 };
 
 
-exports['get grids from file without interaction'] = function(beforeExit) {
+exports['get grids from file without interaction'] = function(beforeExit, assert) {
     var status = {
         success: 0,
         error: 0
@@ -174,20 +175,20 @@ exports['get grids from file without interaction'] = function(beforeExit) {
 
     new MBTiles(fixtures.plain_1, function(err, mbtiles) {
         if (err) throw err;
-        mbtiles.getGrid(0, 1, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, -1, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 3, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 0, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 3, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 4, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 5, 8, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 13, 4, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 14, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 0, 7, yieldsError(status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 6, 2, yieldsError(status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(0, 0, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 1, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(2, -3, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(18, 2, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 3, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 4, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 5, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 13, 4, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(4, 0, 14, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 0, 7, yieldsError(assert, status, 'error', 'Grid does not exist'));
+        mbtiles.getGrid(3, 6, 2, yieldsError(assert, status, 'error', 'Grid does not exist'));
     });
 
     beforeExit(function() {
@@ -196,7 +197,7 @@ exports['get grids from file without interaction'] = function(beforeExit) {
     });
 };
 
-exports['get tiles from non-existent file'] = function(beforeExit) {
+exports['get tiles from non-existent file'] = function(beforeExit, assert) {
     var status = {
         success: 0,
         error: 0
@@ -204,20 +205,20 @@ exports['get tiles from non-existent file'] = function(beforeExit) {
 
     new MBTiles(fixtures.non_existent, function(err, mbtiles) {
         if (err) throw err;
-        mbtiles.getTile(0, 1, 0, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(-1, 0, 0, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(0, 0, -1, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 1, 8, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(2, -3, 0, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(18, 2, 3, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 0, 0, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 3, 8, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 4, 8, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 5, 8, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 13, 4, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 0, 14, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 0, 7, yieldsError(status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 6, 2, yieldsError(status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(0, 1, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(-1, 0, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(0, 0, -1, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(3, 1, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(2, -3, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(18, 2, 3, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(4, 0, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(4, 3, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(4, 4, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(4, 5, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(4, 13, 4, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(4, 0, 14, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(3, 0, 7, yieldsError(assert, status, 'error', 'Tile does not exist'));
+        mbtiles.getTile(3, 6, 2, yieldsError(assert, status, 'error', 'Tile does not exist'));
     });
 
     beforeExit(function() {
@@ -226,7 +227,7 @@ exports['get tiles from non-existent file'] = function(beforeExit) {
     });
 };
 
-exports['get tiles from corrupt file'] = function(beforeExit) {
+exports['get tiles from corrupt file'] = function(beforeExit, assert) {
     var status = {
         success: 0,
         error: 0
@@ -245,3 +246,5 @@ exports['get tiles from corrupt file'] = function(beforeExit) {
         );
     });
 };
+
+
