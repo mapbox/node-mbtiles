@@ -19,6 +19,8 @@ var filename = argv._[0];
 
 var db = new sqlite3.Database(filename);
 
+db.exec("PRAGMA journal_mode = OFF; PRAGMA locking_mode = EXCLUSIVE; PRAGMA cache_size = 400000; PRAGMA synchronous = OFF; PRAGMA temp_store = MEMORY;");
+
 var tables = {};
 db.all("SELECT tbl_name FROM sqlite_master WHERE TYPE = 'table'", function(err, map) {
     if (err) throw err;
@@ -35,13 +37,14 @@ db.run('CREATE INDEX "temp_tile_id_idx" ON "map" ("tile_id")', function(err) {
     console.warn('Created temporary index.');
     db.run('CREATE TEMP TABLE "tile_hash_id" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "hash" TEXT UNIQUE NOT NULL)', function(err) {
         if (err) throw err;
-        db.run('INSERT INTO tile_hash_id (hash) SELECT tile_id FROM images', function(err) {
+        db.run('REPLACE INTO tile_hash_id (hash) SELECT tile_id FROM images', function(err) {
             if (err) throw err;
             db.get('SELECT MAX(id) AS max FROM tile_hash_id', function(err, max) {
                 if (err) throw err;
                 max = max.max;
                 console.warn('Starting tile update... (%d total)', max);
-                for (var i = 1; i < max; i += 1000) {
+
+                for (var i = 1; i < max; i += 10000) {
                     tileQueue.add(i);
                 }
             });
@@ -58,13 +61,13 @@ tileQueue.on('empty', function() {
 
     db.run('CREATE TEMP TABLE "grid_hash_id" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "hash" TEXT UNIQUE NOT NULL)', function(err) {
         if (err) throw err;
-        db.run('INSERT INTO grid_hash_id (hash) SELECT grid_id FROM grid_utfgrid', function(err) {
+        db.run('REPLACE INTO grid_hash_id (hash) SELECT grid_id FROM grid_utfgrid', function(err) {
             if (err) throw err;
             db.get('SELECT MAX(id) AS max FROM grid_hash_id', function(err, max) {
                 if (err) throw err;
                 max = max.max;
                 console.warn('Starting grid update... (%d total)', max);
-                for (var i = 1; i < max; i += 1000) {
+                for (var i = 1; i < max; i += 10000) {
                     gridQueue.add(i);
                 }
             });
@@ -77,7 +80,7 @@ gridQueue.on('empty', deleteTempKey);
 var changedTiles = 0;
 
 function changeTileID(start, done) {
-    db.all('SELECT id, hash FROM tile_hash_id WHERE id >= ? AND id < ?', start, start + 1000, function(err, rows) {
+    db.all('SELECT id, hash FROM tile_hash_id WHERE id >= ? AND id < ?', start, start + 10000, function(err, rows) {
         if (err) throw err;
         db.serialize(function() {
             db.run('BEGIN');
@@ -98,7 +101,7 @@ function changeTileID(start, done) {
 
 var changedGrids = 0;
 function changeGridID(start, done) {
-    db.all('SELECT id, hash FROM grid_hash_id WHERE id >= ? AND id < ?', start, start + 1000, function(err, rows) {
+    db.all('SELECT id, hash FROM grid_hash_id WHERE id >= ? AND id < ?', start, start + 10000, function(err, rows) {
         if (err) throw err;
         db.serialize(function() {
             db.run('BEGIN');
