@@ -32,7 +32,7 @@ db.all("SELECT tbl_name FROM sqlite_master WHERE TYPE = 'table'", function(err, 
 var tileQueue = new utils.Queue(changeTileID, 1);
 var gridQueue = new utils.Queue(changeGridID, 1);
 
-db.run('CREATE INDEX "temp_tile_id_idx" ON "map" ("tile_id")', function(err) {
+db.run('CREATE INDEX IF NOT EXISTS "temp_tile_id_idx" ON "map" ("tile_id")', function(err) {
     if (err) throw err;
     console.warn('Created temporary index.');
     db.run('CREATE TEMP TABLE "tile_hash_id" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "hash" TEXT UNIQUE NOT NULL)', function(err) {
