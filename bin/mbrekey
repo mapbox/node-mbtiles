@@ -86,10 +86,12 @@ function changeTileID(start, done) {
         if (err) throw err;
         db.serialize(function() {
             db.run('BEGIN');
-            rows.forEach(function(row) {
-                db.run('UPDATE images SET tile_id = ? WHERE tile_id = ?', row.id, row.hash);
-                db.run('UPDATE map SET tile_id = ? WHERE tile_id = ?', row.id, row.hash);
-            });
+            var st1 = db.prepare('UPDATE images SET tile_id = ? WHERE tile_id = ?');
+            var st2 = db.prepare('UPDATE map SET tile_id = ? WHERE tile_id = ?');
+            for (var i = 0; i < rows.length; i++) {
+                st1.run(rows[i].id, rows[i].hash);
+                st2.run(rows[i].id, rows[i].hash);
+            }
             db.run('COMMIT', function(err) {
                 if (err) throw err;
                 changedTiles += rows.length;
