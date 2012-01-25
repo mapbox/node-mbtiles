@@ -41,6 +41,7 @@ db.run('CREATE INDEX "temp_tile_id_idx" ON "map" ("tile_id")', function(err) {
             if (err) throw err;
             db.get('SELECT MAX(id) AS max FROM tile_hash_id', function(err, max) {
                 if (err) throw err;
+                if (!max.max) return tileQueue.emit('empty');
                 max = max.max;
                 console.warn('Starting tile update... (%d total)', max);
 
@@ -65,6 +66,7 @@ tileQueue.on('empty', function() {
             if (err) throw err;
             db.get('SELECT MAX(id) AS max FROM grid_hash_id', function(err, max) {
                 if (err) throw err;
+                if (!max.max) return gridQueue.emit('empty');
                 max = max.max;
                 console.warn('Starting grid update... (%d total)', max);
                 for (var i = 1; i < max; i += 10000) {
