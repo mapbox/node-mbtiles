@@ -94,9 +94,12 @@ function changeTileID(start, done) {
             }
             db.run('COMMIT', function(err) {
                 if (err) throw err;
-                changedTiles += rows.length;
-                console.warn('Updated %d tiles.', changedTiles);
-                done();
+                st1.finalize(function(err) {
+                st2.finalize(function(err) {
+                    changedTiles += rows.length;
+                    console.warn('Updated %d tiles.', changedTiles);
+                    done();
+                })});
             });
         });
     });
@@ -125,5 +128,12 @@ function changeGridID(start, done) {
 };
 
 function deleteTempKey() {
-    db.run('DROP INDEX "temp_tile_id_idx"');
+    db.run('DROP INDEX "temp_tile_id_idx"', function(err) {
+        if (err) throw err;
+        console.warn('Vacuuming...');
+        db.run('VACUUM;', function(err) {
+            if (err) throw err;
+            db.close();
+        });
+    });
 }
