@@ -32,7 +32,7 @@ db.all("SELECT tbl_name FROM sqlite_master WHERE TYPE = 'table'", function(err, 
 var tileQueue = new utils.Queue(changeTileID, 1);
 var gridQueue = new utils.Queue(changeGridID, 1);
 
-db.run('CREATE INDEX "temp_tile_id_idx" ON "map" ("tile_id")', function(err) {
+db.run('CREATE INDEX IF NOT EXISTS "temp_tile_id_idx" ON "map" ("tile_id")', function(err) {
     if (err) throw err;
     console.warn('Created temporary index.');
     db.run('CREATE TEMP TABLE "tile_hash_id" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "hash" TEXT UNIQUE NOT NULL)', function(err) {
@@ -86,15 +86,20 @@ function changeTileID(start, done) {
         if (err) throw err;
         db.serialize(function() {
             db.run('BEGIN');
-            rows.forEach(function(row) {
-                db.run('UPDATE images SET tile_id = ? WHERE tile_id = ?', row.id, row.hash);
-                db.run('UPDATE map SET tile_id = ? WHERE tile_id = ?', row.id, row.hash);
-            });
+            var st1 = db.prepare('UPDATE images SET tile_id = ? WHERE tile_id = ?');
+            var st2 = db.prepare('UPDATE map SET tile_id = ? WHERE tile_id = ?');
+            for (var i = 0; i < rows.length; i++) {
+                st1.run(rows[i].id, rows[i].hash);
+                st2.run(rows[i].id, rows[i].hash);
+            }
             db.run('COMMIT', function(err) {
                 if (err) throw err;
-                changedTiles += rows.length;
-                console.warn('Updated %d tiles.', changedTiles);
-                done();
+                st1.finalize(function(err) {
+                st2.finalize(function(err) {
+                    changedTiles += rows.length;
+                    console.warn('Updated %d tiles.', changedTiles);
+                    done();
+                })});
             });
         });
     });
@@ -123,5 +128,12 @@ function changeGridID(start, done) {
 };
 
 function deleteTempKey() {
-    db.run('DROP INDEX "temp_tile_id_idx"');
+    db.run('DROP INDEX "temp_tile_id_idx"', function(err) {
+        if (err) throw err;
+        console.warn('Vacuuming...');
+        db.run('VACUUM;', function(err) {
+            if (err) throw err;
+            db.close();
+        });
+    });
 }
