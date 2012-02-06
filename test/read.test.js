@@ -41,7 +41,7 @@ exports['get tiles'] = function(beforeExit) {
                     if (err) throw err;
                     assert.deepEqual(tile, fs.readFileSync(__dirname + '/fixtures/images/' + file));
                     assert.equal(headers['Content-Type'], 'image/png');
-                    assert.ok(!isNaN(new Date(headers['Last-Modified']).getTime()));
+                    assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
                     assert.ok(/\d+-\d+/.test(headers['ETag']));
                     status.success++;
                 });
@@ -81,7 +81,7 @@ exports['get grids'] = function(beforeExit) {
                     if (err) throw err;
                     assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
                     assert.equal(headers['Content-Type'], 'text/javascript');
-                    assert.ok(!isNaN(new Date(headers['Last-Modified']).getTime()));
+                    assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
                     assert.ok(/\d+-\d+/.test(headers['ETag']));
                     status.success++;
                 });
