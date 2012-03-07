@@ -37,9 +37,12 @@ exports['get tiles'] = function(beforeExit) {
             if (coords) {
                 // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
                 coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
-                mbtiles.getTile(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, tile) {
+                mbtiles.getTile(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, tile, headers) {
                     if (err) throw err;
                     assert.deepEqual(tile, fs.readFileSync(__dirname + '/fixtures/images/' + file));
+                    assert.equal(headers['Content-Type'], 'image/png');
+                    assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
+                    assert.ok(/\d+-\d+/.test(headers['ETag']));
                     status.success++;
                 });
             }
@@ -74,9 +77,12 @@ exports['get grids'] = function(beforeExit) {
             if (coords) {
                 // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
                 coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
-                mbtiles.getGrid(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, grid) {
+                mbtiles.getGrid(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, grid, headers) {
                     if (err) throw err;
                     assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
+                    assert.equal(headers['Content-Type'], 'text/javascript');
+                    assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
+                    assert.ok(/\d+-\d+/.test(headers['ETag']));
                     status.success++;
                 });
             }
