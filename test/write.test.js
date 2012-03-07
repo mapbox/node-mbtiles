@@ -10,7 +10,7 @@ var fixtureDir = __dirname + '/fixtures/output';
 try { fs.unlinkSync(fixtureDir + '/write_1.mbtiles'); } catch(err) {}
 try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
 
-exports['test mbtiles file creation'] = function(beforeExit) {
+exports['test mbtiles file creation'] = function(beforeExit, assert) {
     var completed = { written: 0, read: 0 };
     new MBTiles(fixtureDir + '/write_1.mbtiles', function(err, mbtiles) {
         completed.open = true;
@@ -30,20 +30,17 @@ exports['test mbtiles file creation'] = function(beforeExit) {
             // Flip Y coordinate because file names are TMS, but .putTile() expects XYZ.
             coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
 
-            fs.readFile(__dirname + '/fixtures/images/' + file, function(err, tile) {
+            var tile = fs.readFileSync(__dirname + '/fixtures/images/' + file);
+            mbtiles.putTile(coords[3] | 0, coords[1] | 0, coords[2] | 0, tile, function(err) {
                 if (err) throw err;
-
-                mbtiles.putTile(coords[3] | 0, coords[1] | 0, coords[2] | 0, tile, function(err) {
-                    if (err) throw err;
-                    completed.written++;
-                    if (completed.written === 285) {
-                        mbtiles.stopWriting(function(err) {
-                            completed.stopped = true;
-                            if (err) throw err;
-                            verifyWritten();
-                        });
-                    }
-                });
+                completed.written++;
+                if (completed.written === 285) {
+                    mbtiles.stopWriting(function(err) {
+                        completed.stopped = true;
+                        if (err) throw err;
+                        verifyWritten();
+                    });
+                }
             });
         }
 

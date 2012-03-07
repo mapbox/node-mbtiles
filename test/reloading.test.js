@@ -1,7 +1,6 @@
 process.env.NODE_ENV = 'test';
 
 var fs = require('fs');
-var assert = require('assert');
 var MBTiles = require('..');
 
 var fixtureDir = __dirname + '/fixtures/output';
@@ -17,7 +16,7 @@ var file = fs.readFileSync(fixtures.source);
 try { fs.unlinkSync(fixtures.destination); } catch(err) {}
 try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
 
-exports['test file reloading during copying'] = function(beforeExit) {
+exports['test file reloading during copying'] = function(beforeExit, assert) {
     var completed = false;
     var status = {
         success: 0,

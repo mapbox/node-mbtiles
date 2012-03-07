@@ -35,6 +35,9 @@
         "sphericalmercator": "1.0.x",
         "underscore": "1.1.x"
     },
+    "devDependencies": {
+        "expresso": "~0.9.0"
+    },
     "engines": {
         "node": ">= 0.6.0"
     },
