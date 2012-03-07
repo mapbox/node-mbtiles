@@ -60,7 +60,7 @@ exports['get/put metadata from empty file'] = function(beforeExit, assert) {
 
             assert.deepEqual({
                 basename: "empty.mbtiles",
-                filesize: 16384,
+                filesize: 0,
                 id: "empty",
                 scheme: "tms"
             }, data);
@@ -88,7 +88,7 @@ exports['get/put metadata from empty file'] = function(beforeExit, assert) {
 
                                 assert.deepEqual({
                                     basename: "empty.mbtiles",
-                                    filesize: 16384,
+                                    filesize: 0,
                                     id: "empty",
                                     scheme: "tms",
                                     version: "1.0.0"
