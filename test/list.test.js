@@ -15,14 +15,9 @@ exports['list'] = function(beforeExit, assert) {
     var completed = false; beforeExit(function() { assert.ok(completed); });
 
     MBTiles.list(fixtures.doesnotexist, function(err, list) {
-        assert.ok(err);
-        assert.ok(err.code.match(/^ENOENT/));
-        
-        MBTiles.list(fixtures.doesnotexist, function(err, list) {
-            completed = true;
-            assert.ok(err);
-            assert.ok(err.code.match(/^ENOENT/));
-        });
+        completed = true;
+        assert.equal(err, null);
+        assert.deepEqual(list, {});
     });
 };
 
