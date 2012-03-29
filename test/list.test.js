@@ -16,13 +16,13 @@ exports['list'] = function(beforeExit) {
     var completed = false; beforeExit(function() { assert.ok(completed); });
 
     MBTiles.list(fixtures.doesnotexist, function(err, list) {
-        assert.ok(err);
-        assert.equal(err.message, 'ENOENT, No such file or directory');
-        
+        assert.equal(err, null);
+        assert.deepEqual(list, {});
+
         MBTiles.list(fixtures.doesnotexist, function(err, list) {
             completed = true;
-            assert.ok(err);
-            assert.equal(err.message, 'ENOENT, No such file or directory');
+            assert.equal(err, null);
+            assert.deepEqual(list, {});
         });
     });
 };
