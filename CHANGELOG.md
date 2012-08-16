@@ -1,3 +1,8 @@
+# 0.2.7
+
+- `_metadata` now returns null if the metadata table or the requested field is
+    missing.
+
 # 0.1.14
 
 - Allows `template` key in `metadata` table.
