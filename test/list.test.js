@@ -8,7 +8,7 @@ var fixtures = {
     doesnotexist: __dirname + '/doesnotexist'
 };
 
-try { fs.unlink(fixtures.doesnotexist); } catch (err) {}
+try { fs.unlinkSync(fixtures.doesnotexist); } catch (err) {}
 
 
 exports['list'] = function(beforeExit, assert) {

@@ -9,7 +9,7 @@ var fixtures = {
     empty: __dirname + '/fixtures/empty.mbtiles'
 };
 
-try { fs.unlink(fixtures.empty); } catch (err) {}
+try { fs.unlinkSync(fixtures.empty); } catch (err) {}
 
 
 exports['get metadata'] = function(beforeExit, assert) {
