@@ -13,7 +13,7 @@ var fixtures = {
     corrupt: __dirname + '/fixtures/corrupt.mbtiles'
 };
 
-try { fs.unlink(fixtures.non_existent); } catch (err) {}
+try { fs.unlinkSync(fixtures.non_existent); } catch (err) {}
 
 function yieldsError(assert, status, error, msg) {
     return function(err) {
