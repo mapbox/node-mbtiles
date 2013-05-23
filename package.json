@@ -17,10 +17,10 @@
         "mbpipe": "./bin/mbpipe",
         "mbrekey": "./bin/mbrekey"
     },
-    "repositories": [{
+    "repository": {
         "type": "git",
         "url": "http://github.com/mapbox/node-mbtiles.git"
-    }],
+    },
     "contributors": [
         "Tom MacWright <tmcw>",
         "Will White <willwhite>",
