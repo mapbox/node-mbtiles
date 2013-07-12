@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+require('sqlite3').verbose();
 
 var fs = require('fs');
 var MBTiles = require('..');
