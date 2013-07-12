@@ -11,12 +11,6 @@
     "keywords": ["map", "mbtiles"],
     "licenses": [{ "type": "BSD" }],
     "main": "./lib/mbtiles",
-    "bin": {
-        "mbcheck": "./bin/mbcheck",
-        "mbcompact": "./bin/mbcompact",
-        "mbpipe": "./bin/mbpipe",
-        "mbrekey": "./bin/mbrekey"
-    },
     "repository": {
         "type": "git",
         "url": "http://github.com/mapbox/node-mbtiles.git"
@@ -29,7 +23,6 @@
         "Konstantin Käfer <kkaefer>"
     ],
     "dependencies": {
-        "optimist": "~0.3.1",
         "sqlite3": "~2.1.1",
         "sphericalmercator": "~1.0.1"
     },
