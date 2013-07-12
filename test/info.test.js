@@ -43,7 +43,7 @@ describe('info', function() {
         });
     });
     it('get/put metadata from empty file', function(done) {
-        this.timeout(5e3);
+        this.timeout(10e3);
 
         new MBTiles(fixtures.empty, function(err, mbtiles) {
             assert.ifError(err);
