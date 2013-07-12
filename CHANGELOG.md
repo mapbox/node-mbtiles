@@ -1,3 +1,9 @@
+# 0.3.0
+
+- `step`, `underscore`, `optimist` dependencies removed.
+- Tests upgraded to use `mocha`.
+- Commands removed.
+
 # 0.2.7
 
 - `_metadata` now returns null if the metadata table or the requested field is
