@@ -30,7 +30,8 @@ describe('info', function() {
                     formatter: null,
                     center: [ 0, 7.500000001278025, 2 ],
                     bounds: [ -179.9999999749438, -69.99999999526695, 179.9999999749438, 84.99999999782301 ],
-
+                    // Test that json data is merged in.
+                    level1: { level2: 'property' },
                     // These aren't part of TileJSON, but exist in an MBTiles file.
                     filesize: 561152,
                     type: 'baselayer',
@@ -45,6 +46,11 @@ describe('info', function() {
     it('get/put metadata from empty file', function(done) {
         this.timeout(10e3);
 
+        var info = {
+            version: '1.0.0',
+            level1: { level2: 'property' }
+        };
+
         new MBTiles(fixtures.empty, function(err, mbtiles) {
             assert.ifError(err);
 
@@ -58,14 +64,14 @@ describe('info', function() {
                     scheme: "tms"
                 }, data);
 
-                mbtiles.putInfo({ version: '1.0.0' }, function(err) {
+                mbtiles.putInfo(info, function(err) {
                     assert.ok(err);
                     assert.equal(err.message, 'MBTiles not in write mode');
 
                     mbtiles.startWriting(function(err) {
                         assert.ifError(err);
 
-                        mbtiles.putInfo({ version: '1.0.0' }, function(err) {
+                        mbtiles.putInfo(info, function(err) {
                             assert.ifError(err);
 
                             mbtiles.stopWriting(function(err) {
@@ -79,7 +85,8 @@ describe('info', function() {
                                         filesize: 0,
                                         id: "empty",
                                         scheme: "tms",
-                                        version: "1.0.0"
+                                        version: "1.0.0",
+                                        level1: { level2: "property" },
                                     }, data);
 
                                     done();
