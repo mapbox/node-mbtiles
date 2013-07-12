@@ -48,7 +48,8 @@ describe('info', function() {
 
         var info = {
             version: '1.0.0',
-            level1: { level2: 'property' }
+            level1: { level2: 'property' },
+            custom: [ 'custom list' ]
         };
 
         new MBTiles(fixtures.empty, function(err, mbtiles) {
@@ -87,6 +88,7 @@ describe('info', function() {
                                         scheme: "tms",
                                         version: "1.0.0",
                                         level1: { level2: "property" },
+                                        custom: [ 'custom list' ]
                                     }, data);
 
                                     done();
