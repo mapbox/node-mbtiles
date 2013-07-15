@@ -11,6 +11,18 @@
     "keywords": ["map", "mbtiles"],
     "licenses": [{ "type": "BSD" }],
     "main": "./lib/mbtiles",
+    "bin": {
+        "mbcheck": "./bin/mbcheck",
+        "mbcompact": "./bin/mbcompact",
+        "mbpipe": "./bin/mbpipe",
+        "mbrekey": "./bin/mbrekey"
+    },
+    "man": [
+        "./man/mbcheck.1",
+        "./man/mbcompact.1",
+        "./man/mbpipe.1",
+        "./man/mbrekey.1"
+    ],
     "repository": {
         "type": "git",
         "url": "http://github.com/mapbox/node-mbtiles.git"
@@ -27,7 +39,8 @@
         "sphericalmercator": "~1.0.1"
     },
     "devDependencies": {
-        "mocha": "~1.8.2"
+        "mocha": "~1.8.2",
+        "ronn": "*"
     },
     "engines": {
         "node": ">= 0.6.0"
