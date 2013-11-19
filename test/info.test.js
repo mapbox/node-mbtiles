@@ -1,98 +1,98 @@
-process.env.NODE_ENV = 'test';
+require('sqlite3').verbose();
 
 var fs = require('fs');
-var Step = require('step');
 var MBTiles = require('..');
-
+var assert = require('assert');
 var fixtures = {
     plain_1: __dirname + '/fixtures/plain_1.mbtiles',
     empty: __dirname + '/fixtures/empty.mbtiles'
 };
 
-try { fs.unlink(fixtures.empty); } catch (err) {}
-
-
-exports['get metadata'] = function(beforeExit, assert) {
-    var completed = false;
-
-    new MBTiles(fixtures.plain_1, function(err, mbtiles) {
-        if (err) throw err;
-
-        mbtiles.getInfo(function(err, data) {
-            completed = true;
-            if (err) throw err;
-
-            assert.deepEqual({
-                name: 'plain_1',
-                description: 'demo description',
-                version: '1.0.3',
-                scheme: 'tms',
-                minzoom: 0,
-                maxzoom: 4,
-                formatter: null,
-                center: [ 0, 7.500000001278025, 2 ],
-                bounds: [ -179.9999999749438, -69.99999999526695, 179.9999999749438, 84.99999999782301 ],
-
-                // These aren't part of TileJSON, but exist in an MBTiles file.
-                filesize: 561152,
-                type: 'baselayer',
-                id: 'plain_1',
-                basename: 'plain_1.mbtiles'
-            }, data);
-        })
+describe('info', function() {
+    before(function(done) {
+        try { fs.unlinkSync(fixtures.empty); } catch (err) {}
+        done();
     });
+    it('get metadata', function(done) {
+        new MBTiles(fixtures.plain_1, function(err, mbtiles) {
+            assert.ifError(err);
 
-    beforeExit(function() {
-        assert.ok(completed);
+            mbtiles.getInfo(function(err, data) {
+                assert.ifError(err);
+
+                assert.deepEqual({
+                    name: 'plain_1',
+                    description: 'demo description',
+                    version: '1.0.3',
+                    scheme: 'tms',
+                    minzoom: 0,
+                    maxzoom: 4,
+                    formatter: null,
+                    center: [ 0, 7.500000001278025, 2 ],
+                    bounds: [ -179.9999999749438, -69.99999999526695, 179.9999999749438, 84.99999999782301 ],
+                    // Test that json data is merged in.
+                    level1: { level2: 'property' },
+                    // These aren't part of TileJSON, but exist in an MBTiles file.
+                    filesize: 561152,
+                    type: 'baselayer',
+                    id: 'plain_1',
+                    basename: 'plain_1.mbtiles'
+                }, data);
+
+                done();
+            });
+        });
     });
-};
+    it('get/put metadata from empty file', function(done) {
+        this.timeout(10e3);
 
-exports['get/put metadata from empty file'] = function(beforeExit, assert) {
-    var completion = {};
+        var info = {
+            version: '1.0.0',
+            level1: { level2: 'property' },
+            custom: [ 'custom list' ]
+        };
 
-    new MBTiles(fixtures.empty, function(err, mbtiles) {
-        if (err) throw err;
-        completion.open = true;
+        new MBTiles(fixtures.empty, function(err, mbtiles) {
+            assert.ifError(err);
 
-        mbtiles.getInfo(function(err, data) {
-            if (err) throw err;
-            completion.info = true;
+            mbtiles.getInfo(function(err, data) {
+                assert.ifError(err);
 
-            assert.deepEqual({
-                basename: "empty.mbtiles",
-                filesize: 0,
-                id: "empty",
-                scheme: "tms"
-            }, data);
+                assert.deepEqual({
+                    basename: "empty.mbtiles",
+                    filesize: 0,
+                    id: "empty",
+                    scheme: "tms"
+                }, data);
 
-            mbtiles.putInfo({ version: '1.0.0' }, function(err) {
-                assert.ok(err);
-                assert.equal(err.message, 'MBTiles not in write mode');
-                completion.putFail = true;
+                mbtiles.putInfo(info, function(err) {
+                    assert.ok(err);
+                    assert.equal(err.message, 'MBTiles not in write mode');
 
-                mbtiles.startWriting(function(err) {
-                    if (err) throw err;
-                    completion.startWriting = true;
+                    mbtiles.startWriting(function(err) {
+                        assert.ifError(err);
 
-                    mbtiles.putInfo({ version: '1.0.0' }, function(err) {
-                        if (err) throw err;
-                        completion.written = true;
+                        mbtiles.putInfo(info, function(err) {
+                            assert.ifError(err);
 
-                        mbtiles.stopWriting(function(err) {
-                            if (err) throw err;
-                            completion.stopWriting = true;
+                            mbtiles.stopWriting(function(err) {
+                                assert.ifError(err);
 
-                            mbtiles.getInfo(function(err, data) {
-                                if (err) throw err;
-                                completion.updatedInfo = true;
+                                mbtiles.getInfo(function(err, data) {
+                                    assert.ifError(err);
 
-                                assert.deepEqual({
-                                    basename: "empty.mbtiles",
-                                    filesize: 0,
-                                    id: "empty",
-                                    scheme: "tms",
-                                    version: "1.0.0"
-                                }, data);
+                                    assert.deepEqual({
+                                        basename: "empty.mbtiles",
+                                        filesize: 0,
+                                        id: "empty",
+                                        scheme: "tms",
+                                        version: "1.0.0",
+                                        level1: { level2: "property" },
+                                        custom: [ 'custom list' ]
+                                    }, data);
+
+                                    done();
+                                });
                             });
                         });
                     });
@@ -100,17 +100,4 @@ exports['get/put metadata from empty file'] = function(beforeExit, assert) {
             });
         });
     });
-
-    beforeExit(function() {
-        assert.deepEqual(completion, {
-            info: true,
-            open: true,
-            putFail: true,
-            startWriting: true,
-            stopWriting: true,
-            updatedInfo: true,
-            written: true
-        });
-    });
-};
-
+});

@@ -1,8 +1,8 @@
-process.env.NODE_ENV = 'test';
+require('sqlite3').verbose();
 
 var fs = require('fs');
 var MBTiles = require('..');
-
+var assert = require('assert');
 
 var fixtures = {
     plain_1: __dirname + '/fixtures/plain_1.mbtiles',
@@ -13,244 +13,133 @@ var fixtures = {
     corrupt: __dirname + '/fixtures/corrupt.mbtiles'
 };
 
-try { fs.unlink(fixtures.non_existent); } catch (err) {}
-
-function yieldsError(assert, status, error, msg) {
+function yieldsError(assert, error, msg, callback) {
     return function(err) {
         assert.ok(err);
         var re = new RegExp( "^" + msg, "i");
         assert.ok(err.message.match(re));
-        status[error]++;
+        if (callback) callback();
     };
 }
 
+describe('read', function() {
+    var loaded = {};
 
-exports['get tiles'] = function(beforeExit, assert) {
-    var status = {
-        success: 0,
-        error: 0
-    };
+    before(function(done) {
+        try { fs.unlinkSync(fixtures.non_existent); } catch (err) {}
+        done();
+    });
+    before(function(done) {
+        var queue = Object.keys(fixtures);
+        var load = function() {
+            if (!queue.length) return done();
+            var key = queue.shift();
+            new MBTiles(fixtures[key], function(err, mbtiles) {
+                if (err) throw err;
+                loaded[key] = mbtiles;
+                load();
+            });
+        };
+        load();
+    });
 
-    new MBTiles(fixtures.plain_1, function(err, mbtiles) {
-        if (err) throw err;
-        fs.readdirSync(__dirname + '/fixtures/images/').forEach(function(file) {
-            var coords = file.match(/^plain_1_(\d+)_(\d+)_(\d+).png$/);
-            if (coords) {
-                // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
-                coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
-                mbtiles.getTile(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, tile, headers) {
-                    if (err) throw err;
-                    assert.deepEqual(tile, fs.readFileSync(__dirname + '/fixtures/images/' + file));
-                    assert.equal(headers['Content-Type'], 'image/png');
-                    assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
-                    assert.ok(/\d+-\d+/.test(headers['ETag']));
-                    status.success++;
-                });
-            }
+    fs.readdirSync(__dirname + '/fixtures/images/').forEach(function(file) {
+        var coords = file.match(/^plain_1_(\d+)_(\d+)_(\d+).png$/);
+        if (!coords) return;
+
+        // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
+        coords = [ coords[3], coords[1], coords[2] ];
+        coords[2] = Math.pow(2, coords[0]) - 1 - coords[2];
+        it('tile ' + coords.join('/'), function(done) {
+            loaded.plain_1.getTile(coords[0] | 0, coords[1] | 0, coords[2] | 0, function(err, tile, headers) {
+                if (err) throw err;
+                assert.deepEqual(tile, fs.readFileSync(__dirname + '/fixtures/images/' + file));
+                assert.equal(headers['Content-Type'], 'image/png');
+                assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
+                assert.ok(/\d+-\d+/.test(headers['ETag']));
+                done();
+            });
         });
-
-        mbtiles.getTile(0, 1, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(-1, 0, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(0, 0, 1, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 1, -1, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(2, -3, 3, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(18, 2, 262140, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 0, 15, yieldsError(assert, status, 'error', 'Tile does not exist'));
-    });
-
-
-    beforeExit(function() {
-        assert.equal(status.success, 285);
-        assert.equal(status.error, 7);
-    });
-};
-
-exports['get grids'] = function(beforeExit, assert) {
-    var status = {
-        success: 0,
-        error: 0
-    };
-
-    new MBTiles(fixtures.plain_2, function(err, mbtiles) {
-        if (err) throw err;
-        fs.readdirSync(__dirname + '/fixtures/grids/').forEach(function(file) {
-            var coords = file.match(/^plain_2_(\d+)_(\d+)_(\d+).json$/);
-            if (coords) {
-                // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
-                coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
-                mbtiles.getGrid(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, grid, headers) {
-                    if (err) throw err;
-                    assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
-                    assert.equal(headers['Content-Type'], 'text/javascript');
-                    assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
-                    assert.ok(/\d+-\d+/.test(headers['ETag']));
-                    status.success++;
-                });
-            }
+        it('grid ' + coords.join('/'), function(done) {
+            loaded.plain_1.getGrid(coords[0] | 0, coords[1] | 0, coords[2] | 0, yieldsError(assert, 'error', 'Grid does not exist', done));
         });
-
-        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, 1, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 262140, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 15, yieldsError(assert, status, 'error', 'Grid does not exist'));
     });
-
-
-    beforeExit(function() {
-        assert.equal(status.success, 241);
-        assert.equal(status.error, 7);
-    });
-};
-
-
-exports['get grids from file without interaction'] = function(beforeExit, assert) {
-    var status = {
-        success: 0,
-        error: 0
-    };
-
-    new MBTiles(fixtures.plain_1, function(err, mbtiles) {
-        if (err) throw err;
-        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 3, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 4, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 5, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 13, 4, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 14, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 0, 7, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 6, 2, yieldsError(assert, status, 'error', 'Grid does not exist'));
-    });
-
-    beforeExit(function() {
-        assert.equal(status.success, 0);
-        assert.equal(status.error, 14);
-    });
-};
-
-exports['get grids with different schema'] = function(beforeExit, assert) {
-    var status = {
-        success: 0,
-        error: 0
-    };
-
-    new MBTiles(fixtures.plain_4, function(err, mbtiles) {
-        if (err) throw err;
-        fs.readdirSync(__dirname + '/fixtures/grids/').forEach(function(file) {
-            var coords = file.match(/^plain_2_(\d+)_(\d+)_(\d+).json$/);
-            if (coords) {
-                // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
-                coords[2] = Math.pow(2, coords[3]) - 1 - coords[2];
-                mbtiles.getGrid(coords[3] | 0, coords[1] | 0, coords[2] | 0, function(err, grid) {
-                    if (err) throw err;
-                    assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
-                    status.success++;
-                });
-            }
+    [   [0,1,0],
+        [-1,0,0],
+        [0,0,1],
+        [3,1,-1],
+        [2,-3,3],
+        [18,2,262140],
+        [4,0,15]
+    ].forEach(function(coords) {
+        it('tile ' + coords.join('/'), function(done) {
+            loaded.plain_1.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Tile does not exist', done));
         });
-
-        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, 1, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 262140, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 15, yieldsError(assert, status, 'error', 'Grid does not exist'));
     });
 
-    beforeExit(function() {
-        assert.equal(status.success, 241);
-        assert.equal(status.error, 7);
+    fs.readdirSync(__dirname + '/fixtures/grids/').forEach(function(file) {
+        var coords = file.match(/^plain_2_(\d+)_(\d+)_(\d+).json$/);
+        if (!coords) return;
+
+        // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
+        coords = [ coords[3], coords[1], coords[2] ];
+        coords[2] = Math.pow(2, coords[0]) - 1 - coords[2];
+        it('grid ' + coords.join('/'), function(done) {
+            loaded.plain_2.getGrid(coords[0] | 0, coords[1] | 0, coords[2] | 0, function(err, grid, headers) {
+                if (err) throw err;
+                assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
+                assert.equal(headers['Content-Type'], 'text/javascript');
+                assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
+                assert.ok(/\d+-\d+/.test(headers['ETag']));
+                done();
+            });
+        });
+        it('grid alt ' + coords.join('/'), function(done) {
+            loaded.plain_4.getGrid(coords[0] | 0, coords[1] | 0, coords[2] | 0, function(err, grid, headers) {
+                if (err) throw err;
+                assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
+                assert.equal(headers['Content-Type'], 'text/javascript');
+                assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
+                assert.ok(/\d+-\d+/.test(headers['ETag']));
+                done();
+            });
+        });
     });
-};
-
-
-exports['get grids from file without interaction'] = function(beforeExit, assert) {
-    var status = {
-        success: 0,
-        error: 0
-    };
-
-    new MBTiles(fixtures.plain_1, function(err, mbtiles) {
-        if (err) throw err;
-        mbtiles.getGrid(0, 1, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(-1, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(0, 0, -1, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 1, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(2, -3, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(18, 2, 3, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 0, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 3, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 4, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 5, 8, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 13, 4, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(4, 0, 14, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 0, 7, yieldsError(assert, status, 'error', 'Grid does not exist'));
-        mbtiles.getGrid(3, 6, 2, yieldsError(assert, status, 'error', 'Grid does not exist'));
+    [   [0,1,0],
+        [-1,0,0],
+        [0,0,1],
+        [3,1,-1],
+        [2,-3,3],
+        [18,2,262140],
+        [4,0,15]
+    ].forEach(function(coords) {
+        it('grid ' + coords.join('/'), function(done) {
+            loaded.plain_2.getGrid(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Grid does not exist', done));
+        });
+        it('grid alt ' + coords.join('/'), function(done) {
+            loaded.plain_4.getGrid(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Grid does not exist', done));
+        });
     });
-
-    beforeExit(function() {
-        assert.equal(status.success, 0);
-        assert.equal(status.error, 14);
+    [   [0,1,0],
+        [-1,0,0],
+        [0,0,-1],
+        [3,1,8],
+        [2,-3,0],
+        [18,2,3],
+        [4,0,0],
+        [4,3,8],
+        [4,4,8],
+        [4,5,8],
+        [4,13,4],
+        [4,0,14],
+        [3,0,7],
+        [3,6,2]
+    ].forEach(function(coords) {
+        it('dne ' + coords.join('/'), function(done) {
+            loaded.non_existent.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Tile does not exist', done));
+        });
+        it('corrupt ' + coords.join('/'), function(done) {
+            loaded.corrupt.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'SQLITE_CORRUPT: database disk image is malformed', done));
+        });
     });
-};
-
-exports['get tiles from non-existent file'] = function(beforeExit, assert) {
-    var status = {
-        success: 0,
-        error: 0
-    };
-
-    new MBTiles(fixtures.non_existent, function(err, mbtiles) {
-        if (err) throw err;
-        mbtiles.getTile(0, 1, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(-1, 0, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(0, 0, -1, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 1, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(2, -3, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(18, 2, 3, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 0, 0, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 3, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 4, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 5, 8, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 13, 4, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(4, 0, 14, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 0, 7, yieldsError(assert, status, 'error', 'Tile does not exist'));
-        mbtiles.getTile(3, 6, 2, yieldsError(assert, status, 'error', 'Tile does not exist'));
-    });
-
-    beforeExit(function() {
-        assert.equal(status.success, 0);
-        assert.equal(status.error, 14);
-    });
-};
-
-exports['get tiles from corrupt file'] = function(beforeExit, assert) {
-    var status = {
-        success: 0,
-        error: 0
-    };
-    var error;
-    new MBTiles(fixtures.corrupt, function(err, mbtiles) {
-        error = err;
-    });
-
-    beforeExit(function() {
-        assert.throws(
-            function() {
-                throw err;
-            },
-            Error
-        );
-    });
-};
-
-
+});

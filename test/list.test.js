@@ -1,23 +1,23 @@
-process.env.NODE_ENV = 'test';
+require('sqlite3').verbose();
 
 var fs = require('fs');
-var Step = require('step');
 var MBTiles = require('..');
-
+var assert = require('assert');
 var fixtures = {
     doesnotexist: __dirname + '/doesnotexist'
 };
 
-try { fs.unlink(fixtures.doesnotexist); } catch (err) {}
-
-
-exports['list'] = function(beforeExit, assert) {
-    var completed = false; beforeExit(function() { assert.ok(completed); });
-
-    MBTiles.list(fixtures.doesnotexist, function(err, list) {
-        completed = true;
-        assert.equal(err, null);
-        assert.deepEqual(list, {});
+describe('list', function() {
+    before(function(done) {
+        try { fs.unlinkSync(fixtures.doesnotexist); } catch (err) {}
+        done();
     });
-};
+    it('list', function(done) {
+        MBTiles.list(fixtures.doesnotexist, function(err, list) {
+            assert.ifError(err);
+            assert.deepEqual(list, {});
+            done();
+        });
+    });
+});
 
