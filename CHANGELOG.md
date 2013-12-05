@@ -1,3 +1,7 @@
+# 0.4.0
+
+- Adds support for carmen (dev) geocoding API.
+
 # 0.3.0
 
 - `step`, `underscore`, `optimist` dependencies removed.
