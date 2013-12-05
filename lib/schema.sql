@@ -1,5 +1,7 @@
 -- MBTiles schema
 
+BEGIN;
+
 CREATE TABLE IF NOT EXISTS map (
    zoom_level INTEGER,
    tile_column INTEGER,
@@ -70,3 +72,5 @@ CREATE VIEW IF NOT EXISTS grid_data AS
     FROM map
     JOIN grid_key ON map.grid_id = grid_key.grid_id
     JOIN keymap ON grid_key.key_name = keymap.key_name;
+
+COMMIT;
