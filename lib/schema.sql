@@ -35,6 +35,11 @@ CREATE TABLE IF NOT EXISTS metadata (
     value text
 );
 
+CREATE TABLE IF NOT EXISTS geocoder_data (
+    type TEXT,
+    shard INTEGER,
+    data BLOB
+);
 
 CREATE UNIQUE INDEX IF NOT EXISTS map_index ON map (zoom_level, tile_column, tile_row);
 CREATE UNIQUE INDEX IF NOT EXISTS grid_key_lookup ON grid_key (grid_id, key_name);
@@ -42,7 +47,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS keymap_lookup ON keymap (key_name);
 CREATE UNIQUE INDEX IF NOT EXISTS grid_utfgrid_lookup ON grid_utfgrid (grid_id);
 CREATE UNIQUE INDEX IF NOT EXISTS images_id ON images (tile_id);
 CREATE UNIQUE INDEX IF NOT EXISTS name ON metadata (name);
-
+CREATE INDEX IF NOT EXISTS map_grid_id ON map (grid_id);
+CREATE INDEX IF NOT EXISTS geocoder_type_index ON geocoder_data (type);
+CREATE UNIQUE INDEX IF NOT EXISTS geocoder_shard_index ON geocoder_data (type, shard);
 
 CREATE VIEW IF NOT EXISTS tiles AS
     SELECT
