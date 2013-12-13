@@ -26,7 +26,7 @@ before(function(done) {
     index = new MBTiles(__dirname + '/fixtures/geocoder_data.mbtiles', done);
 });
 before(function(done) {
-    from = new MBTiles(__dirname + '/fixtures/plain_4.mbtiles', done);
+    from = new MBTiles(__dirname + '/fixtures/geocoder_legacy.mbtiles', done);
 });
 before(function(done) {
     to = new MBTiles(tmp + '/indexed.mbtiles', done);
@@ -79,10 +79,40 @@ it('getIndexableDocs', function(done) {
         assert.ifError(err);
         assert.equal(docs.length, 10);
         assert.deepEqual(pointer, { limit: 10, offset: 10, nogrids: false });
+        assert.deepEqual(docs[0], {
+            AREA: 0,
+            FIPS: 'AA',
+            ISO2: 'AW',
+            ISO3: 'ABW',
+            name: 'Aruba',
+            POP2005: 102897,
+            REGION: 19,
+            SUBREGION: 29,
+            UN: 533,
+            _id: 'ABW',
+            _text: 'Aruba',
+            _zxy: [ '4/4/7' ],
+            _center: [ -69.977, 12.517 ]
+        });
         from.getIndexableDocs(pointer, function(err, docs, pointer) {
             assert.ifError(err);
             assert.equal(docs.length, 10);
             assert.deepEqual(pointer, { limit: 10, offset: 20, nogrids: false });
+            assert.deepEqual(docs[0], {
+                AREA: 20,
+                FIPS: 'AQ',
+                ISO2: 'AS',
+                ISO3: 'ASM',
+                name: 'American Samoa',
+                POP2005: 64051,
+                REGION: 9,
+                SUBREGION: 61,
+                UN: 16,
+                _id: 'ASM',
+                _text: 'American Samoa',
+                _zxy: [ '4/0/8' ],
+                _center: [ -170.73, -14.318 ]
+            });
             done();
         });
     });
