@@ -5,7 +5,7 @@ node_js:
  - "0.8"
 
 before_install:
- - sudo apt-get update -qq
+ - true
 
 install:
  - npm install
