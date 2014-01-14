@@ -23,7 +23,7 @@
         "Konstantin Käfer <kkaefer>"
     ],
     "dependencies": {
-        "sqlite3": "~2.1.12",
+        "sqlite3": "~2.2.0",
         "sphericalmercator": "~1.0.1"
     },
     "devDependencies": {
