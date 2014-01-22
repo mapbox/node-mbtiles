@@ -89,7 +89,7 @@ it('getIndexableDocs', function(done) {
             REGION: 19,
             SUBREGION: 29,
             UN: 533,
-            _id: 'ABW',
+            _id: 4214083313,
             _text: 'Aruba',
             _zxy: [ '4/4/7' ],
             _center: [ -69.977, 12.517 ]
@@ -108,7 +108,7 @@ it('getIndexableDocs', function(done) {
                 REGION: 9,
                 SUBREGION: 61,
                 UN: 16,
-                _id: 'ASM',
+                _id: 2093723708,
                 _text: 'American Samoa',
                 _zxy: [ '4/0/8' ],
                 _center: [ -170.73, -14.318 ]
@@ -118,5 +118,47 @@ it('getIndexableDocs', function(done) {
     });
 });
 
+it('geocoderCentroid ABW', function(done) {
+    from.geocoderCentroid('ABW', ['4/4/7'], function(err, center) {
+        assert.ifError(err);
+        assert.deepEqual([ -70.3125, 12.554563528593656 ], center);
+        done();
+    });
 });
 
+it('geocoderCentroid ASM', function(done) {
+    from.geocoderCentroid('ASM', ['4/0/8'], function(err, center) {
+        assert.ifError(err);
+        assert.deepEqual([-170.859375,-14.264383087562637], center);
+        done();
+    });
+});
+
+it('geocoderCentroid USA', function(done) {
+    from.geocoderCentroid('USA', [
+        '4/0/7',
+        '4/0/6',
+        '4/0/5',
+        '4/0/4',
+        '4/0/3',
+        '4/1/7',
+        '4/1/4',
+        '4/1/3',
+        '4/2/6',
+        '4/2/5',
+        '4/2/4',
+        '4/3/6',
+        '4/3/5',
+        '4/4/7',
+        '4/4/6',
+        '4/4/5',
+        '4/5/5',
+        '4/15/5'
+    ], function(err, center) {
+        assert.ifError(err);
+        assert.deepEqual([-118.828125,46.07323062540835], center);
+        done();
+    });
+});
+
+});
