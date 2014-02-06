@@ -1,6 +1,6 @@
 {
     "name": "mbtiles",
-    "version": "0.2.8",
+    "version": "0.2.9",
     "description": "Utilities and tilelive integration for the MBTiles format.",
     "url": "http://github.com/mapbox/node-mbtiles",
     "author": {
@@ -23,9 +23,9 @@
         "Konstantin Käfer <kkaefer>"
     ],
     "dependencies": {
-        "underscore": "~1.3.3",
+        "underscore": "~1.5.2",
         "step": "~0.0.5",
-        "sqlite3": "~2.1.1",
+        "sqlite3": "~2.2.0",
         "sphericalmercator": "~1.0.1"
     },
     "devDependencies": {

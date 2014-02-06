@@ -1,3 +1,11 @@
+# 0.2.9
+
+- Bumped sqlite and underscore versions
+
+# 0.2.8
+
+- Fix early initialization of _schema attribute.
+
 # 0.2.7
 
 - `_metadata` now returns null if the metadata table or the requested field is
