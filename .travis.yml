@@ -8,10 +8,11 @@ before_install:
  - true
 
 install:
- - npm install
+ - true
 
 before_script:
  - true
 
 script:
+ - npm install
  - npm test
