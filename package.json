@@ -1,39 +1,47 @@
 {
-    "name": "mbtiles",
-    "version": "0.4.3",
-    "description": "Utilities and tilelive integration for the MBTiles format.",
-    "url": "http://github.com/mapbox/node-mbtiles",
-    "author": {
-        "name": "MapBox",
-        "url": "http://mapbox.com/",
-        "email": "info@mapbox.com"
-    },
-    "keywords": ["map", "mbtiles"],
-    "licenses": [{ "type": "BSD" }],
-    "main": "./lib/mbtiles",
-    "repository": {
-        "type": "git",
-        "url": "http://github.com/mapbox/node-mbtiles.git"
-    },
-    "contributors": [
-        "Tom MacWright <tmcw>",
-        "Will White <willwhite>",
-        "Dane Springmeyer <springmeyer>",
-        "Young Hahn <yhahn>",
-        "Konstantin Käfer <kkaefer>"
-    ],
-    "dependencies": {
-        "tiletype": "0.0.x",
-        "sqlite3": "~2.2.0",
-        "sphericalmercator": "~1.0.1"
-    },
-    "devDependencies": {
-        "mocha": "~1.8.2"
-    },
-    "engines": {
-        "node": ">= 0.6.0"
-    },
-    "scripts": {
-        "test": "mocha"
+  "name": "mbtiles",
+  "version": "0.4.3",
+  "description": "Utilities and tilelive integration for the MBTiles format.",
+  "url": "http://github.com/mapbox/node-mbtiles",
+  "author": {
+    "name": "MapBox",
+    "url": "http://mapbox.com/",
+    "email": "info@mapbox.com"
+  },
+  "keywords": [
+    "map",
+    "mbtiles"
+  ],
+  "licenses": [
+    {
+      "type": "BSD"
     }
+  ],
+  "main": "./lib/mbtiles",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/mapbox/node-mbtiles.git"
+  },
+  "contributors": [
+    "Tom MacWright <tmcw>",
+    "Will White <willwhite>",
+    "Dane Springmeyer <springmeyer>",
+    "Young Hahn <yhahn>",
+    "Konstantin Käfer <kkaefer>"
+  ],
+  "dependencies": {
+    "tiletype": "0.0.x",
+    "sqlite3": "~2.2.0",
+    "sphericalmercator": "~1.0.1"
+  },
+  "devDependencies": {
+    "mocha": "~1.8.2",
+    "queue-async": "~1.0.7"
+  },
+  "engines": {
+    "node": ">= 0.6.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
 }
