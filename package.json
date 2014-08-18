@@ -30,7 +30,7 @@
     "Konstantin Käfer <kkaefer>"
   ],
   "dependencies": {
-    "tiletype": "git+https://github.com/mapbox/tiletype.git#content-encoding",
+    "tiletype": "git+https://github.com/mapbox/tiletype.git#content-encoding-evil",
     "sqlite3": "~2.2.0",
     "sphericalmercator": "~1.0.1"
   },
