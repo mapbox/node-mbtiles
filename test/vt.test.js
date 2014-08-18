@@ -65,4 +65,17 @@ describe('vector tile', function() {
                 });
         });
     });
+
+    it('is assumed to be deflated even if format metadata is not present', function(done) {
+        new MBTiles(__dirname + '/fixtures/vector_deflate.mbtiles', function(err, mbtiles) {
+            assert.ifError(err);
+            mbtiles.getTile(0, 0, 0, function (err, data, headers) {
+                assert.ifError(err);
+                assert.equal(headers['Content-Type'], 'application/x-protobuf');
+                assert.equal(headers['Content-Encoding'], undefined);
+                assert.equal(data.length, 141503);
+                done();
+            });
+        });
+    });
 });
