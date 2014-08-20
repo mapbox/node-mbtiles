@@ -1,3 +1,7 @@
+# 0.5.0
+
+- Adds support for gzip compressed vector tiles.
+
 # 0.4.0
 
 - Adds support for carmen (dev) geocoding API.
