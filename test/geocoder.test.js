@@ -121,7 +121,8 @@ it('getIndexableDocs', function(done) {
 it('geocoderCentroid ABW', function(done) {
     from.geocoderCentroid('ABW', ['4/4/7'], function(err, center) {
         assert.ifError(err);
-        assert.deepEqual([ -70.3125, 12.554563528593656 ], center);
+        assert.equal(parseFloat(center[0].toFixed(10)), -70.3125);
+        assert.equal(parseFloat(center[1].toFixed(10)), 12.5545635286);
         done();
     });
 });
@@ -129,7 +130,8 @@ it('geocoderCentroid ABW', function(done) {
 it('geocoderCentroid ASM', function(done) {
     from.geocoderCentroid('ASM', ['4/0/8'], function(err, center) {
         assert.ifError(err);
-        assert.deepEqual([-170.859375,-14.264383087562637], center);
+        assert.equal(parseFloat(center[0].toFixed(10)), -170.859375);
+        assert.equal(parseFloat(center[1].toFixed(10)), -14.2643830876);
         done();
     });
 });
@@ -156,7 +158,8 @@ it('geocoderCentroid USA', function(done) {
         '4/15/5'
     ], function(err, center) {
         assert.ifError(err);
-        assert.deepEqual([-118.828125,46.07323062540835], center);
+        assert.equal(parseFloat(center[0].toFixed(10)), -118.828125);
+        assert.equal(parseFloat(center[1].toFixed(10)), 46.0732306254);
         done();
     });
 });
