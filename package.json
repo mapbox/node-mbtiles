@@ -1,6 +1,6 @@
 {
     "name": "mbtiles",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "description": "Utilities and tilelive integration for the MBTiles format.",
     "url": "http://github.com/mapbox/node-mbtiles",
     "author": {

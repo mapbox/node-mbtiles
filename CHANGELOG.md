@@ -1,3 +1,7 @@
+# 0.6.0
+
+- Update dep to ~sqlite@3.0.0.
+
 # 0.5.0
 
 - Adds support for gzip compressed vector tiles.
