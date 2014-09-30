@@ -12,7 +12,7 @@ var expected = {
     search: 'Canada, CA'
 };
 
-var tmp = '/tmp/mbtiles-test-' + (+new Date).toString(16);
+var tmp = require('os').tmpdir() + '/mbtiles-test-' + (+new Date).toString(16);
 var index;
 var from;
 var to;
