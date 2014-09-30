@@ -7,12 +7,12 @@ var fixtures = {
     doesnotexist: __dirname + '/doesnotexist'
 };
 
-    try { fs.unlinkSync(fixtures.doesnotexist); } catch (err) {}
+try { fs.unlinkSync(fixtures.doesnotexist); } catch (err) {}
 
-    tape('list', function(assert) {
-        MBTiles.list(fixtures.doesnotexist, function(err, list) {
-            assert.ifError(err);
-            assert.deepEqual(list, {});
-            assert.end();
-        });
+tape('list', function(assert) {
+    MBTiles.list(fixtures.doesnotexist, function(err, list) {
+        assert.ifError(err);
+        assert.deepEqual(list, {});
+        assert.end();
     });
+});
