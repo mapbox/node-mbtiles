@@ -1,9 +1,7 @@
 var fs = require('fs');
-var assert = require('assert');
 var util = require('util');
 var MBTiles = require('..');
-
-describe('geocoder (carmen) API', function() {
+var tape = require('tape');
 
 var expected = {
     bounds: '-141.005548666451,41.6690855919108,-52.615930948992,83.1161164353916',
@@ -14,50 +12,32 @@ var expected = {
     search: 'Canada, CA'
 };
 
-var tmp = '/tmp/mbtiles-test-' + (+new Date).toString(16);
+var tmp = require('os').tmpdir() + '/mbtiles-test-' + (+new Date).toString(16);
 var index;
 var from;
 var to;
 
-before(function() {
-    try { fs.mkdirSync(tmp); } catch(err) { throw err; }
+try { fs.mkdirSync(tmp); } catch(err) { throw err; }
+
+tape('setup', function(assert) {
+    index = new MBTiles(__dirname + '/fixtures/geocoder_data.mbtiles', assert.end);
 });
-before(function(done) {
-    index = new MBTiles(__dirname + '/fixtures/geocoder_data.mbtiles', done);
+tape('setup', function(assert) {
+    from = new MBTiles(__dirname + '/fixtures/geocoder_legacy.mbtiles', assert.end);
 });
-before(function(done) {
-    from = new MBTiles(__dirname + '/fixtures/geocoder_legacy.mbtiles', done);
-});
-before(function(done) {
-    to = new MBTiles(tmp + '/indexed.mbtiles', done);
+tape('setup', function(assert) {
+    to = new MBTiles(tmp + '/indexed.mbtiles', assert.end);
 });
 
-after(function(done) {
-    this.timeout(5000);
-    index.close(function(err) {
-        if (err) throw err;
-        from.close(function(err) {
-            if (err) throw err;
-            to.close(function(err) {
-                if (err) throw err;
-                try { fs.unlinkSync(tmp + '/indexed.mbtiles'); } catch(err) { throw err; }
-                try { fs.rmdirSync(tmp); } catch(err) { throw err; }
-                done();
-            });
-        });
-    });
-});
-
-it('getGeocoderData', function(done) {
+tape('getGeocoderData', function(assert) {
     index.getGeocoderData('term', 0, function(err, buffer) {
         assert.ifError(err);
         assert.equal(3891, buffer.length);
-        done();
+        assert.end();
     });
 });
 
-it('putGeocoderData', function(done) {
-    this.timeout(5000);
+tape('putGeocoderData', function(assert) {
     to.startWriting(function(err) {
         assert.ifError(err);
         to.putGeocoderData('term', 0, new Buffer('asdf'), function(err) {
@@ -67,14 +47,14 @@ it('putGeocoderData', function(done) {
                 to.getGeocoderData('term', 0, function(err, buffer) {
                     assert.ifError(err);
                     assert.deepEqual('asdf', buffer.toString());
-                    done();
+                    assert.end();
                 });
             });
         });
     });
 });
 
-it('getIndexableDocs', function(done) {
+tape('getIndexableDocs', function(assert) {
     from.getIndexableDocs({ limit: 10 }, function(err, docs, pointer) {
         assert.ifError(err);
         assert.equal(docs.length, 10);
@@ -113,30 +93,30 @@ it('getIndexableDocs', function(done) {
                 _zxy: [ '4/0/8' ],
                 _center: [ -170.73, -14.318 ]
             });
-            done();
+            assert.end();
         });
     });
 });
 
-it('geocoderCentroid ABW', function(done) {
+tape('geocoderCentroid ABW', function(assert) {
     from.geocoderCentroid('ABW', ['4/4/7'], function(err, center) {
         assert.ifError(err);
         assert.equal(parseFloat(center[0].toFixed(10)), -70.3125);
         assert.equal(parseFloat(center[1].toFixed(10)), 12.5545635286);
-        done();
+        assert.end();
     });
 });
 
-it('geocoderCentroid ASM', function(done) {
+tape('geocoderCentroid ASM', function(assert) {
     from.geocoderCentroid('ASM', ['4/0/8'], function(err, center) {
         assert.ifError(err);
         assert.equal(parseFloat(center[0].toFixed(10)), -170.859375);
         assert.equal(parseFloat(center[1].toFixed(10)), -14.2643830876);
-        done();
+        assert.end();
     });
 });
 
-it('geocoderCentroid USA', function(done) {
+tape('geocoderCentroid USA', function(assert) {
     from.geocoderCentroid('USA', [
         '4/0/7',
         '4/0/6',
@@ -160,8 +140,23 @@ it('geocoderCentroid USA', function(done) {
         assert.ifError(err);
         assert.equal(parseFloat(center[0].toFixed(10)), -118.828125);
         assert.equal(parseFloat(center[1].toFixed(10)), 46.0732306254);
-        done();
+        assert.end();
     });
 });
 
+tape('cleanup', function(assert) {
+    index.close(function(err) {
+        if (err) throw err;
+        from.close(function(err) {
+            if (err) throw err;
+            to.close(function(err) {
+                if (err) throw err;
+                try { fs.unlinkSync(tmp + '/indexed.mbtiles'); } catch(err) { throw err; }
+                try { fs.rmdirSync(tmp); } catch(err) { throw err; }
+                assert.end();
+            });
+        });
+    });
 });
+
+

@@ -28,12 +28,12 @@
         "sphericalmercator": "~1.0.1"
     },
     "devDependencies": {
-        "mocha": "~1.8.2"
+        "tape": "~3.0.0"
     },
     "engines": {
         "node": ">= 0.10.0"
     },
     "scripts": {
-        "test": "./node_modules/.bin/mocha"
+        "test": "tape test/*.js"
     }
 }

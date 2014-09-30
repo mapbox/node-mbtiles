@@ -1,23 +1,18 @@
 require('sqlite3').verbose();
 
 var fs = require('fs');
+var tape = require('tape');
 var MBTiles = require('..');
-var assert = require('assert');
 var fixtures = {
     doesnotexist: __dirname + '/doesnotexist'
 };
 
-describe('list', function() {
-    before(function(done) {
-        try { fs.unlinkSync(fixtures.doesnotexist); } catch (err) {}
-        done();
-    });
-    it('list', function(done) {
+    try { fs.unlinkSync(fixtures.doesnotexist); } catch (err) {}
+
+    tape('list', function(assert) {
         MBTiles.list(fixtures.doesnotexist, function(err, list) {
             assert.ifError(err);
             assert.deepEqual(list, {});
-            done();
+            assert.end();
         });
     });
-});
-

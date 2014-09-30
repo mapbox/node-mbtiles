@@ -1,19 +1,15 @@
 require('sqlite3').verbose();
 
 var fs = require('fs');
-var assert = require('assert');
+var tape = require('tape');
 var MBTiles = require('..');
 var fixtureDir = __dirname + '/fixtures/output';
 
-describe('write grids', function() {
-    before(function(done) {
-        // Recreate output directory to remove previous tests.
-        try { fs.unlinkSync(fixtureDir + '/write_2.mbtiles'); } catch(err) {}
-        try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
-        done();
-    });
-    it('test mbtiles file creation', function(done) {
-        this.timeout(20e3);
+    // Recreate output directory to remove previous tests.
+    try { fs.unlinkSync(fixtureDir + '/write_2.mbtiles'); } catch(err) {}
+    try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
+
+    tape('test mbtiles file creation', function(assert) {
         var completed = { written: 0, read: 0 };
         new MBTiles(fixtureDir + '/write_2.mbtiles', function(err, mbtiles) {
             completed.open = true;
@@ -57,11 +53,10 @@ describe('write grids', function() {
                             if (err) throw err;
                             assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
                             completed.read++;
-                            if (completed.read === 241) done();
+                            if (completed.read === 241) assert.end();
                         });
                     }
                 });
             }
         });
     });
-});

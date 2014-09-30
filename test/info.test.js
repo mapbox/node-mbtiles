@@ -1,19 +1,16 @@
 require('sqlite3').verbose();
 
 var fs = require('fs');
+var tape = require('tape');
 var MBTiles = require('..');
-var assert = require('assert');
 var fixtures = {
     plain_1: __dirname + '/fixtures/plain_1.mbtiles',
     empty: __dirname + '/fixtures/empty.mbtiles'
 };
 
-describe('info', function() {
-    before(function(done) {
-        try { fs.unlinkSync(fixtures.empty); } catch (err) {}
-        done();
-    });
-    it('get metadata', function(done) {
+    try { fs.unlinkSync(fixtures.empty); } catch (err) {}
+
+    tape('get metadata', function(assert) {
         new MBTiles(fixtures.plain_1, function(err, mbtiles) {
             assert.ifError(err);
 
@@ -39,13 +36,11 @@ describe('info', function() {
                     basename: 'plain_1.mbtiles'
                 }, data);
 
-                done();
+                assert.end();
             });
         });
     });
-    it('get/put metadata from empty file', function(done) {
-        this.timeout(10e3);
-
+    tape('get/put metadata from empty file', function(assert) {
         var info = {
             version: '1.0.0',
             level1: { level2: 'property' },
@@ -91,7 +86,7 @@ describe('info', function() {
                                         custom: [ 'custom list' ]
                                     }, data);
 
-                                    done();
+                                    assert.end();
                                 });
                             });
                         });
@@ -100,4 +95,3 @@ describe('info', function() {
             });
         });
     });
-});

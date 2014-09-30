@@ -2,7 +2,7 @@ require('sqlite3').verbose();
 
 var fs = require('fs');
 var MBTiles = require('..');
-var assert = require('assert');
+var tape = require('tape');
 
 var fixtures = {
     plain_1: __dirname + '/fixtures/plain_1.mbtiles',
@@ -22,17 +22,14 @@ function yieldsError(assert, error, msg, callback) {
     };
 }
 
-describe('read', function() {
     var loaded = {};
 
-    before(function(done) {
-        try { fs.unlinkSync(fixtures.non_existent); } catch (err) {}
-        done();
-    });
-    before(function(done) {
+    try { fs.unlinkSync(fixtures.non_existent); } catch (err) {}
+
+    tape('setup', function(assert) {
         var queue = Object.keys(fixtures);
         var load = function() {
-            if (!queue.length) return done();
+            if (!queue.length) return assert.end();
             var key = queue.shift();
             new MBTiles(fixtures[key], function(err, mbtiles) {
                 if (err) throw err;
@@ -50,18 +47,18 @@ describe('read', function() {
         // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
         coords = [ coords[3], coords[1], coords[2] ];
         coords[2] = Math.pow(2, coords[0]) - 1 - coords[2];
-        it('tile ' + coords.join('/'), function(done) {
+        tape('tile ' + coords.join('/'), function(assert) {
             loaded.plain_1.getTile(coords[0] | 0, coords[1] | 0, coords[2] | 0, function(err, tile, headers) {
                 if (err) throw err;
                 assert.deepEqual(tile, fs.readFileSync(__dirname + '/fixtures/images/' + file));
                 assert.equal(headers['Content-Type'], 'image/png');
                 assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
                 assert.ok(/\d+-\d+/.test(headers['ETag']));
-                done();
+                assert.end();
             });
         });
-        it('grid ' + coords.join('/'), function(done) {
-            loaded.plain_1.getGrid(coords[0] | 0, coords[1] | 0, coords[2] | 0, yieldsError(assert, 'error', 'Grid does not exist', done));
+        tape('grid ' + coords.join('/'), function(assert) {
+            loaded.plain_1.getGrid(coords[0] | 0, coords[1] | 0, coords[2] | 0, yieldsError(assert, 'error', 'Grid does not exist', assert.end));
         });
     });
     [   [0,1,0],
@@ -72,8 +69,8 @@ describe('read', function() {
         [18,2,262140],
         [4,0,15]
     ].forEach(function(coords) {
-        it('tile ' + coords.join('/'), function(done) {
-            loaded.plain_1.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Tile does not exist', done));
+        tape('tile ' + coords.join('/'), function(assert) {
+            loaded.plain_1.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Tile does not exist', assert.end));
         });
     });
 
@@ -84,24 +81,24 @@ describe('read', function() {
         // Flip Y coordinate because file names are TMS, but .getTile() expects XYZ.
         coords = [ coords[3], coords[1], coords[2] ];
         coords[2] = Math.pow(2, coords[0]) - 1 - coords[2];
-        it('grid ' + coords.join('/'), function(done) {
+        tape('grid ' + coords.join('/'), function(assert) {
             loaded.plain_2.getGrid(coords[0] | 0, coords[1] | 0, coords[2] | 0, function(err, grid, headers) {
                 if (err) throw err;
                 assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
                 assert.equal(headers['Content-Type'], 'text/javascript');
                 assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
                 assert.ok(/\d+-\d+/.test(headers['ETag']));
-                done();
+                assert.end();
             });
         });
-        it('grid alt ' + coords.join('/'), function(done) {
+        tape('grid alt ' + coords.join('/'), function(assert) {
             loaded.plain_4.getGrid(coords[0] | 0, coords[1] | 0, coords[2] | 0, function(err, grid, headers) {
                 if (err) throw err;
                 assert.deepEqual(JSON.stringify(grid), fs.readFileSync(__dirname + '/fixtures/grids/' + file, 'utf8'));
                 assert.equal(headers['Content-Type'], 'text/javascript');
                 assert.ok(!isNaN(Date.parse(headers['Last-Modified'])));
                 assert.ok(/\d+-\d+/.test(headers['ETag']));
-                done();
+                assert.end();
             });
         });
     });
@@ -113,11 +110,11 @@ describe('read', function() {
         [18,2,262140],
         [4,0,15]
     ].forEach(function(coords) {
-        it('grid ' + coords.join('/'), function(done) {
-            loaded.plain_2.getGrid(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Grid does not exist', done));
+        tape('grid ' + coords.join('/'), function(assert) {
+            loaded.plain_2.getGrid(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Grid does not exist', assert.end));
         });
-        it('grid alt ' + coords.join('/'), function(done) {
-            loaded.plain_4.getGrid(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Grid does not exist', done));
+        tape('grid alt ' + coords.join('/'), function(assert) {
+            loaded.plain_4.getGrid(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Grid does not exist', assert.end));
         });
     });
     [   [0,1,0],
@@ -135,11 +132,11 @@ describe('read', function() {
         [3,0,7],
         [3,6,2]
     ].forEach(function(coords) {
-        it('dne ' + coords.join('/'), function(done) {
-            loaded.non_existent.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Tile does not exist', done));
+        tape('dne ' + coords.join('/'), function(assert) {
+            loaded.non_existent.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Tile does not exist', assert.end));
         });
-        it('corrupt ' + coords.join('/'), function(done) {
-            loaded.corrupt.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'SQLITE_CORRUPT: database disk image is malformed', done));
+        tape('corrupt ' + coords.join('/'), function(assert) {
+            loaded.corrupt.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'SQLITE_CORRUPT: database disk image is malformed', assert.end));
         });
     });
-});
+
