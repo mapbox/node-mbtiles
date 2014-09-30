@@ -1,20 +1,15 @@
 require('sqlite3').verbose();
 
 var fs = require('fs');
-var assert = require('assert');
+var tape = require('tape');
 var MBTiles = require('..');
 var fixtureDir = __dirname + '/fixtures/output';
 
-describe('write', function() {
-    before(function(done) {
-        // Recreate output directory to remove previous tests.
-        try { fs.unlinkSync(fixtureDir + '/write_1.mbtiles'); } catch(err) {}
-        try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
-        done();
-    });
-    it('test mbtiles file creation', function(done) {
-        this.timeout(20e3);
+    // Recreate output directory to remove previous tests.
+    try { fs.unlinkSync(fixtureDir + '/write_1.mbtiles'); } catch(err) {}
+    try { fs.mkdirSync(fixtureDir, 0755); } catch(err) {}
 
+    tape('test mbtiles file creation', function(assert) {
         var completed = { written: 0, read: 0 };
         new MBTiles(fixtureDir + '/write_1.mbtiles', function(err, mbtiles) {
             completed.open = true;
@@ -58,11 +53,10 @@ describe('write', function() {
                             if (err) throw err;
                             assert.deepEqual(tile, fs.readFileSync(__dirname + '/fixtures/images/' + file));
                             completed.read++;
-                            if (completed.read === 285) done();
+                            if (completed.read === 285) assert.end();
                         });
                     }
                 });
             }
         });
     });
-});
