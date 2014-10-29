@@ -73,3 +73,24 @@ tape('zxystream batch = 10', function(assert) {
     });
 });
 
+tape('zxystream empty', function(assert) {
+    new MBTiles(__dirname + '/fixtures/non_existent.mbtiles', function(err, s) {
+        assert.ifError(err);
+        source = s;
+        assert.end();
+    });
+});
+
+tape('zxystream empty zxystream', function(assert) {
+    var stream = source.createZXYStream();
+    var called = 0;
+    stream.on('data', function(lines) {
+        called++;
+    });
+    stream.on('end', function() {
+        assert.equal(called, 0, 'data never called');
+        assert.end();
+    });
+});
+
+
