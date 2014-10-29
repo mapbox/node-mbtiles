@@ -1,3 +1,7 @@
+# 0.7.0
+
+- Adds `createZXYStream` method for a readstream of z/x/y tile coordinates.
+
 # 0.6.0
 
 - Update dep to ~sqlite@3.0.0.
