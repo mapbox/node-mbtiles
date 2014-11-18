@@ -10,7 +10,8 @@ var fixtures = {
     plain_3: __dirname + '/fixtures/plain_3.mbtiles',
     plain_4: __dirname + '/fixtures/plain_4.mbtiles',
     non_existent: __dirname + '/fixtures/non_existent.mbtiles',
-    corrupt: __dirname + '/fixtures/corrupt.mbtiles'
+    corrupt: __dirname + '/fixtures/corrupt.mbtiles',
+    corrupt_null_tile: __dirname + '/fixtures/corrupt_null_tile.mbtiles'
 };
 
 function yieldsError(assert, error, msg, callback) {
@@ -140,3 +141,6 @@ fs.readdirSync(__dirname + '/fixtures/grids/').forEach(function(file) {
     });
 });
 
+tape('corrupt null tile', function(assert) {
+    loaded.corrupt_null_tile.getTile(1, 0, 1, yieldsError(assert, 'error', 'Tile is invalid', assert.end));
+});
