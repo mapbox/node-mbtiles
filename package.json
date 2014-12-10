@@ -1,13 +1,9 @@
 {
     "name": "mbtiles",
-    "version": "0.7.4",
+    "version": "0.7.5",
     "description": "Utilities and tilelive integration for the MBTiles format.",
     "url": "http://github.com/mapbox/node-mbtiles",
-    "author": {
-        "name": "MapBox",
-        "url": "http://mapbox.com/",
-        "email": "info@mapbox.com"
-    },
+    "author": "Mapbox (https://www.mapbox.com)",
     "keywords": ["map", "mbtiles"],
     "licenses": [{ "type": "BSD" }],
     "main": "./lib/mbtiles",
