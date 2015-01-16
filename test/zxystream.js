@@ -17,7 +17,6 @@ tape('zxystream default batch', function(assert) {
 
     assert.deepEqual(stream.source, source, 'sets stream.source');
     assert.deepEqual(stream.batch, 1000, 'sets stream.batch = 1000');
-    assert.deepEqual(stream.offset, 0, 'sets stream.offset = 0');
 
     stream.on('data', function(lines) {
         assert.equal(stream.table, 'map');
@@ -50,7 +49,6 @@ tape('zxystream batch = 10', function(assert) {
 
     assert.deepEqual(stream.source, source, 'sets stream.source');
     assert.deepEqual(stream.batch, 10, 'sets stream.batch = 10');
-    assert.deepEqual(stream.offset, 0, 'sets stream.offset = 0');
 
     stream.on('data', function(lines) {
         assert.equal(stream.table, 'map');
@@ -90,7 +88,6 @@ tape('zxystream unindexed zxystream', function(assert) {
 
     assert.deepEqual(stream.source, source, 'sets stream.source');
     assert.deepEqual(stream.batch, 1000, 'sets stream.batch = 1000');
-    assert.deepEqual(stream.offset, 0, 'sets stream.offset = 0');
 
     stream.on('data', function(lines) {
         assert.equal(stream.table, 'tiles');
