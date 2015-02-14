@@ -73,6 +73,15 @@ tape('zxystream batch = 10', function(assert) {
     });
 });
 
+tape('zxystream length attribute', function(assert) {
+    var stream = source.createZXYStream();
+    stream.length(function(err, length) {
+        assert.ifError(err, 'no error');
+        assert.equal(length, 269, 'expected length');
+        assert.end();
+    });
+});
+
 tape('zxystream unindexed', function(assert) {
     new MBTiles(__dirname + '/fixtures/unindexed.mbtiles', function(err, s) {
         assert.ifError(err);
@@ -112,7 +121,14 @@ tape('zxystream unindexed zxystream', function(assert) {
     });
 });
 
-
+tape('zxystream unindexed length attribute', function(assert) {
+    var stream = source.createZXYStream();
+    stream.length(function(err, length) {
+        assert.ifError(err, 'no error');
+        assert.equal(length, 285, 'expected length');
+        assert.end();
+    });
+});
 
 tape('zxystream empty', function(assert) {
     new MBTiles(__dirname + '/fixtures/non_existent.mbtiles', function(err, s) {
@@ -134,4 +150,11 @@ tape('zxystream empty zxystream', function(assert) {
     });
 });
 
-
+tape('zxystream nonexistent length attribute', function(assert) {
+    var stream = source.createZXYStream();
+    stream.length(function(err, length) {
+        assert.ok(err, 'expected error');
+        assert.equal(err.code, 'SQLITE_ERROR', 'expected error code from failed read');
+        assert.end();
+    });
+});
