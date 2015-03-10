@@ -41,6 +41,18 @@ tape('zxystream default batch', function(assert) {
     });
 });
 
+tape('zxystream: can close source', function(assert) {
+    new MBTiles(__dirname + '/fixtures/plain_1.mbtiles', function(err, src) {
+        assert.ifError(err);
+        src.createZXYStream()
+            .on('end', function() {
+                src.close(function(err) {
+                    assert.ifError(err, 'can close source when zxystream is finished');
+                    assert.end();
+                });
+            }).resume();
+    });
+});
 
 tape('zxystream batch = 10', function(assert) {
     var stream = source.createZXYStream({batch:10});
@@ -133,5 +145,3 @@ tape('zxystream empty zxystream', function(assert) {
         assert.end();
     });
 });
-
-
