@@ -1,3 +1,7 @@
+# 0.8.0
+
+- `createZXYStream` only lists tile coordinates that contain tile data
+
 # 0.7.0
 
 - Adds `createZXYStream` method for a readstream of z/x/y tile coordinates.
