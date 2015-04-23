@@ -1,2 +1,4 @@
 node_modules
 test/fixtures/non_existent.mbtiles
+test/fixtures/empty.mbtiles
+test/fixtures/output
