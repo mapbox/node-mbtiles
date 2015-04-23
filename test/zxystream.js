@@ -145,3 +145,20 @@ tape('zxystream empty zxystream', function(assert) {
         assert.end();
     });
 });
+
+tape('zxystream ignores map coords without tile_ids', function(assert) {
+    new MBTiles(__dirname + '/fixtures/some-empty-tiles.mbtiles', function(err, src) {
+        if (err) throw err;
+        var stream = src.createZXYStream();
+        var called = 0;
+        stream.on('data', function(lines) {
+            lines.toString().split('\n').forEach(function(coord) {
+                if (coord) called++;
+            });
+        });
+        stream.on('end', function() {
+            assert.equal(called, 11, 'found correct number of tiles');
+            assert.end();
+        });
+    });
+});
