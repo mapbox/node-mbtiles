@@ -6,6 +6,7 @@ node_js:
 # track down segfaults per https://travis-ci.org/mapbox/node-mbtiles/jobs/36595376
 # - "0.11"
  - "0.10"
+ - "4.1"
 
 before_install:
  - true
