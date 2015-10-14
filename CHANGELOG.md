@@ -1,3 +1,7 @@
+# 0.8.1
+
+- Now supports Node 4.x
+
 # 0.8.0
 
 - `createZXYStream` only lists tile coordinates that contain tile data
