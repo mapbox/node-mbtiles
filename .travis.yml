@@ -3,9 +3,9 @@ language: node_js
 sudo: false
 
 node_js:
-# track down segfaults per https://travis-ci.org/mapbox/node-mbtiles/jobs/36595376
-# - "0.11"
  - "0.10"
+ - "0.12"
+ - "4"
 
 before_install:
  - true
