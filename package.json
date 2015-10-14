@@ -20,7 +20,7 @@
     ],
     "dependencies": {
         "tiletype": "0.1.x",
-        "sqlite3": "~3.0.0",
+        "sqlite3": "3.x",
         "sphericalmercator": "~1.0.1"
     },
     "devDependencies": {
