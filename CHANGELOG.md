@@ -1,3 +1,7 @@
+# 0.8.2
+
+- Robustify error handling in `getGeocoderdata`.
+
 # 0.8.1
 
 - Now supports Node 4.x
