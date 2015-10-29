@@ -13,12 +13,16 @@ var expected = {
 };
 
 var tmp = require('os').tmpdir() + '/mbtiles-test-' + (+new Date).toString(16);
+var tilesOnly;
 var index;
 var from;
 var to;
 
 try { fs.mkdirSync(tmp); } catch(err) { throw err; }
 
+tape('setup', function(assert) {
+    tilesOnly  = new MBTiles(tmp + '/tilesOnly.mbtiles', assert.end);
+});
 tape('setup', function(assert) {
     index = new MBTiles(__dirname + '/fixtures/geocoder_data.mbtiles', assert.end);
 });
@@ -33,6 +37,22 @@ tape('getGeocoderData', function(assert) {
     index.getGeocoderData('term', 0, function(err, buffer) {
         assert.ifError(err);
         assert.equal(3891, buffer.length);
+        assert.end();
+    });
+});
+
+tape('getGeocoderData (nodata)', function(assert) {
+    index.getGeocoderData('term', 1e6, function(err, buffer) {
+        assert.ifError(err);
+        assert.equal(buffer, undefined);
+        assert.end();
+    });
+});
+
+tape('getGeocoderData (no table)', function(assert) {
+    tilesOnly.getGeocoderData('term', 0, function(err, buffer) {
+        assert.ifError(err);
+        assert.equal(buffer, undefined);
         assert.end();
     });
 });
@@ -144,19 +164,14 @@ tape('geocoderCentroid USA', function(assert) {
     });
 });
 
+tape('cleanup', function(assert) { tilesOnly.close(assert.end); });
+tape('cleanup', function(assert) { index.close(assert.end); });
+tape('cleanup', function(assert) { from.close(assert.end); });
+tape('cleanup', function(assert) { to.close(assert.end); });
 tape('cleanup', function(assert) {
-    index.close(function(err) {
-        if (err) throw err;
-        from.close(function(err) {
-            if (err) throw err;
-            to.close(function(err) {
-                if (err) throw err;
-                try { fs.unlinkSync(tmp + '/indexed.mbtiles'); } catch(err) { throw err; }
-                try { fs.rmdirSync(tmp); } catch(err) { throw err; }
-                assert.end();
-            });
-        });
-    });
+    try { fs.unlinkSync(tmp + '/tilesOnly.mbtiles'); } catch(err) { throw err; }
+    try { fs.unlinkSync(tmp + '/indexed.mbtiles'); } catch(err) { throw err; }
+    try { fs.rmdirSync(tmp); } catch(err) { throw err; }
+    assert.end();
 });
-
 
