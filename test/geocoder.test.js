@@ -164,20 +164,14 @@ tape('geocoderCentroid USA', function(assert) {
     });
 });
 
+tape('cleanup', function(assert) { tilesOnly.close(assert.end); });
+tape('cleanup', function(assert) { index.close(assert.end); });
+tape('cleanup', function(assert) { from.close(assert.end); });
+tape('cleanup', function(assert) { to.close(assert.end); });
 tape('cleanup', function(assert) {
-    index.close(function(err) {
-        if (err) throw err;
-        from.close(function(err) {
-            if (err) throw err;
-            to.close(function(err) {
-                if (err) throw err;
-                try { fs.unlinkSync(tmp + '/tilesOnly.mbtiles'); } catch(err) { throw err; }
-                try { fs.unlinkSync(tmp + '/indexed.mbtiles'); } catch(err) { throw err; }
-                try { fs.rmdirSync(tmp); } catch(err) { throw err; }
-                assert.end();
-            });
-        });
-    });
+    try { fs.unlinkSync(tmp + '/tilesOnly.mbtiles'); } catch(err) { throw err; }
+    try { fs.unlinkSync(tmp + '/indexed.mbtiles'); } catch(err) { throw err; }
+    try { fs.rmdirSync(tmp); } catch(err) { throw err; }
+    assert.end();
 });
-
 
