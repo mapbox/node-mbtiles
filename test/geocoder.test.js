@@ -62,17 +62,42 @@ tape('putGeocoderData', function(assert) {
         assert.ifError(err);
         to.putGeocoderData('term', 0, new Buffer('asdf'), function(err) {
             assert.ifError(err);
-            to.stopWriting(function(err) {
+            to.putGeocoderData('term', 1, new Buffer('ZZZZZ'), function(err) {
                 assert.ifError(err);
-                to.getGeocoderData('term', 0, function(err, buffer) {
+                to.stopWriting(function(err) {
                     assert.ifError(err);
-                    assert.deepEqual('asdf', buffer.toString());
-                    assert.end();
+                    to.getGeocoderData('term', 0, function(err, buffer) {
+                        assert.ifError(err);
+                        assert.deepEqual('asdf', buffer.toString());
+                        assert.end();
+                    });
                 });
             });
         });
     });
 });
+
+tape('geocoderDataIterator', function(assert) {
+    var it = to.geocoderDataIterator("term");
+    var data = [];
+    var n = function(item) {
+        if (item.done) {
+            assert.equal(data.length, 2, "iterator produces two shards");
+
+            assert.equal(data[0].shard, 0);
+            assert.equal(data[0].data.toString(), "asdf");
+
+            assert.equal(data[1].shard, 1);
+            assert.equal(data[1].data.toString(), "ZZZZZ");
+
+            assert.end();
+        } else {
+            data.push(item.value);
+            it.asyncNext(n);
+        }
+    }
+    it.asyncNext(n);
+})
 
 tape('getIndexableDocs', function(assert) {
     from.getIndexableDocs({ limit: 10 }, function(err, docs, pointer) {
