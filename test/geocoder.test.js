@@ -80,7 +80,8 @@ tape('putGeocoderData', function(assert) {
 tape('geocoderDataIterator', function(assert) {
     var it = to.geocoderDataIterator("term");
     var data = [];
-    var n = function(item) {
+    var n = function(err, item) {
+        assert.ifError(err);
         if (item.done) {
             assert.equal(data.length, 2, "iterator produces two shards");
 
