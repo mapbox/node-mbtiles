@@ -26,6 +26,7 @@
     "Konstantin Käfer <kkaefer>"
   ],
   "dependencies": {
+    "d3-queue": "~2.0.3",
     "tiletype": "0.1.x",
     "sqlite3": "3.x",
     "sphericalmercator": "~1.0.1"
