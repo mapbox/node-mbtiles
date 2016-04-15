@@ -1,6 +1,6 @@
 {
   "name": "mbtiles",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Utilities and tilelive integration for the MBTiles format.",
   "url": "http://github.com/mapbox/node-mbtiles",
   "author": "Mapbox (https://www.mapbox.com)",
@@ -23,7 +23,8 @@
     "Will White <willwhite>",
     "Dane Springmeyer <springmeyer>",
     "Young Hahn <yhahn>",
-    "Konstantin Käfer <kkaefer>"
+    "Konstantin Käfer <kkaefer>",
+    "Andrew Pendleton <apendleton>"
   ],
   "dependencies": {
     "d3-queue": "~2.0.3",

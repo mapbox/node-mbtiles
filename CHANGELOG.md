@@ -1,3 +1,7 @@
+# 0.9.0
+
+- Add `geocoderDataIterator`.
+
 # 0.8.2
 
 - Robustify error handling in `getGeocoderdata`.
