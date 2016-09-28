@@ -21,7 +21,7 @@ tape('get metadata', function(assert) {
                 name: 'plain_1',
                 description: 'demo description',
                 version: '1.0.3',
-                scheme: 'tms',
+                scheme: 'xyz',
                 minzoom: 0,
                 maxzoom: 4,
                 formatter: null,
@@ -57,7 +57,7 @@ tape('get/put metadata from empty file', function(assert) {
                 basename: "empty.mbtiles",
                 filesize: 0,
                 id: "empty",
-                scheme: "tms"
+                scheme: "xyz"
             }, data);
 
             mbtiles.putInfo(info, function(err) {
@@ -80,7 +80,7 @@ tape('get/put metadata from empty file', function(assert) {
                                     basename: "empty.mbtiles",
                                     filesize: 0,
                                     id: "empty",
-                                    scheme: "tms",
+                                    scheme: "xyz",
                                     version: "1.0.0",
                                     level1: { level2: "property" },
                                     custom: [ 'custom list' ]
