@@ -24,13 +24,14 @@
     "Dane Springmeyer <springmeyer>",
     "Young Hahn <yhahn>",
     "Konstantin Käfer <kkaefer>",
-    "Andrew Pendleton <apendleton>"
+    "Andrew Pendleton <apendleton>",
+    "Kai Dalgleish <kaibot3000>"
   ],
   "dependencies": {
     "d3-queue": "~2.0.3",
-    "tiletype": "0.1.x",
+    "@mapbox/tiletype": "0.3.x",
     "sqlite3": "3.x",
-    "sphericalmercator": "~1.0.1"
+    "@mapbox/sphericalmercator": "~1.0.1"
   },
   "devDependencies": {
     "tape": "~3.0.0",
