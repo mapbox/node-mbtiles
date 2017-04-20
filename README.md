@@ -7,7 +7,7 @@ Utilities and [tilelive][1] integration for the [MBTiles][2] format.
 
 ### Installation
 
-    npm install mbtiles
+    npm install @mapbox/mbtiles
 
 
 [1]: https://github.com/mapbox/tilelive.js
