@@ -34,6 +34,7 @@
     "@mapbox/sphericalmercator": "~1.0.1"
   },
   "devDependencies": {
+    "node-gyp": "^3.6.1",
     "tape": "~3.0.0",
     "eslint": "~1.00.0",
     "eslint-config-unstyled": "^1.1.0"
