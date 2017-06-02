@@ -28,6 +28,7 @@
     "Kai Dalgleish <kaibot3000>"
   ],
   "dependencies": {
+    "node-pre-gyp": "~0.6.32",
     "d3-queue": "~2.0.3",
     "@mapbox/tiletype": "0.3.x",
     "sqlite3": "3.x",
