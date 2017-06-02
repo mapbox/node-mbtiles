@@ -28,14 +28,12 @@
     "Kai Dalgleish <kaibot3000>"
   ],
   "dependencies": {
-    "node-pre-gyp": "~0.6.32",
     "d3-queue": "~2.0.3",
     "@mapbox/tiletype": "0.3.x",
     "sqlite3": "3.x",
     "@mapbox/sphericalmercator": "~1.0.1"
   },
   "devDependencies": {
-    "node-gyp": "^3.6.1",
     "tape": "~3.0.0",
     "eslint": "~1.00.0",
     "eslint-config-unstyled": "^1.1.0"
