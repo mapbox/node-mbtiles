@@ -29,7 +29,7 @@ environment:
       msvs_toolset: 14
 install:
 # TODO add link to versioned build script
-  - ps: Start-FileDownload 'https://github.com/mapbox/ci-scripts/raw/master/node/ci-cpp.bat' -FileName ci.bat
+  - ps: Start-FileDownload 'https://github.com/mapbox/ci-scripts/raw/master/node/ci-js.bat' -FileName ci.bat
   - CALL ci.bat
 
 build: OFF
