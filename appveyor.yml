@@ -28,8 +28,7 @@ environment:
     - nodejs_version: 8
       msvs_toolset: 14
 install:
-# TODO add link to versioned build script
-  - ps: Start-FileDownload 'https://github.com/mapbox/ci-scripts/raw/master/node/ci-js.bat' -FileName ci.bat
+  - ps: Start-FileDownload 'https://github.com/mapbox/ci-scripts/raw/v1.1.0/node/ci-js.bat' -FileName ci.bat
   - CALL ci.bat
 
 build: OFF
