@@ -5,7 +5,8 @@ var tape = require('tape');
 var MBTiles = require('..');
 var fixtures = {
     plain_1: __dirname + '/fixtures/plain_1.mbtiles',
-    empty: __dirname + '/fixtures/empty.mbtiles'
+    empty: __dirname + '/fixtures/empty.mbtiles',
+    tilestats: __dirname + '/fixtures/tilestats-metadata.mbtiles'
 };
 
 try { fs.unlinkSync(fixtures.empty); } catch (err) {}
@@ -92,6 +93,29 @@ tape('get/put metadata from empty file', function(assert) {
                     });
                 });
             });
+        });
+    });
+});
+
+tape('getTilestats returns valid object from metadata table if it exists', function(assert) {
+    new MBTiles(fixtures.tilestats, function(err, mbtiles) {
+        mbtiles.getTilestats(function(err, stats) {
+            assert.ifError(err, 'no error');
+            assert.ok(stats, 'tilestats object exists');
+            assert.equal(stats.layerCount, stats.layers.length, 'expected number of layers');
+            assert.equal(stats.layers[0].layer, 'ne_10m_admin_0_countries', 'layer name is expected');
+            assert.equal(stats.layers[0].attributes.length, stats.layers[0].attributeCount, 'expected number of attributes');
+            assert.end();
+        });
+    });
+});
+
+tape('getTilestats returns null if tilestats row does not exist in metadata table (does not error)', function(assert) {
+    new MBTiles(fixtures.plain_1, function(err, mbtiles) {
+        mbtiles.getTilestats(function(err, stats) {
+            assert.ifError(err, 'no error');
+            assert.notOk(stats, 'no tilestats object');
+            assert.end();
         });
     });
 });
