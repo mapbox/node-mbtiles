@@ -71,3 +71,9 @@ Add a new tile buffer to a specific ZXY. This can be a raster tile or a _gzipped
 **`putInfo(data, callback)`**
 
 Put an information object into the metadata table. Any nested JSON will be stringified and stored in the "json" row of the metadata table. This will replace any matching key/value fields in the table.
+
+# Test
+
+```
+npm test
+```
