@@ -29,7 +29,7 @@ new MBTiles('./path/to/file.mbtiles', function(err, mbtiles) {
 
 ### Reading
 
-**`getTile`**
+**`getTile(z, x, y, callback)`**
 
 Get an individual tile from the MBTiles table. This can be a raster or gzipped vector tile. Also returns headers that are important for serving over HTTP.
 
@@ -39,13 +39,23 @@ mbtiles.getTile(z, x, y, function(err, data, headers) {
 });
 ```
 
-**`getInfo`**
+**`getInfo(callback)`**
 
 Get info of an MBTiles file, which is stored in the `metadata` table. Includes information like zoom levels, bounds, vector_layers, that were created during generation. This performs fallback queries if certain keys like `bounds`, `minzoom`, or `maxzoom` have not been provided.
 
 ```javascript
 mbtiles.getInfo(function(err, info) {
   console.log(info); // info
+});
+```
+
+**`getGrid(z, x, y, callback)`**
+
+Get a [UTFGrid](https://github.com/mapbox/utfgrid-spec) tile from the MBTiles table.
+
+```javascript
+mbtiles.getGrid(z, x, y, function(err, data) {
+  // continue onwards
 });
 ```
 
@@ -68,9 +78,50 @@ mbtiles.startWriting(function(err) {
 
 Add a new tile buffer to a specific ZXY. This can be a raster tile or a _gzipped_ vector tile (we suggest using `require('zlib')` to gzip your tiles).
 
+```javascript
+var zlib = require('zlib');
+
+zlib.gzip(fs.readFileSync('./path/to/file.mvt'), function(err, buffer) {
+  mbtiles.putTile(0, 0, 0, buffer, function(err) {
+    // continue onward
+  });
+});
+```
+
 **`putInfo(data, callback)`**
 
 Put an information object into the metadata table. Any nested JSON will be stringified and stored in the "json" row of the metadata table. This will replace any matching key/value fields in the table.
+
+```javascript
+var exampleInfo = {
+  "name": "hello-world",
+  "description":"the world in vector tiles",
+  "format":"pbf",
+  "version": 2,
+  "minzoom": 0,
+  "maxzoom": 4,
+  "center": "0,0,1",
+  "bounds": "-180.000000,-85.051129,180.000000,85.051129",
+  "type": "overlay",
+  "json": `{"vector_layers": [ { "id": "${layername}", "description": "", "minzoom": 0, "maxzoom": 4, "fields": {} } ] }`
+};
+
+mbtiles.putInfo(exampleInfo, function(err) {
+  // continue onward
+});
+```
+
+**`putGrid(z, x, y, grid, callback)`**
+
+Inserts a [UTFGrid](https://github.com/mapbox/utfgrid-spec) tile into the MBTiles store. Grids are in JSON format.
+
+```javascript
+var fs = require('fs');
+var grid = JSON.parse(fs.readFileSync('./path/to/grid.json', 'utf8'));
+mbtiles.putGrid(0, 0, 0, grid, function(err) {
+  // continue onward
+});
+```
 
 # Test
 
