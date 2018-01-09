@@ -123,6 +123,37 @@ mbtiles.putGrid(0, 0, 0, grid, function(err) {
 });
 ```
 
+## Hook up to tilelive
+
+When working at scale, node-mbtiles is meant to be used within a [Tilelive](https://github.com/mapbox/tilelive) ecosystem. For example, you could set up an MBTiles file as a "source" and an S3 destination as a "sink" (using tilelive-s3). Assuming you have a system set up with an `mbtiles://` protocol that points to a specific file and authorized to write to the s3 bucket:
+
+```javascript
+var tilelive = require('@mapbox/tilelive');
+var MBTiles = require('@mapbox/mbtiles');
+var s3 = require('@mapbox/tilelive-s3');
+
+s3.registerProtocols(tilelive);
+MBTiles.registerProtocols(tilelive);
+
+var sourceUri = 'mbtiles:///User/hello/path/to/file.mbtiles';
+var sinkUri = 's3://my-bucket/tiles/{z}/{x}/{y}';
+
+// load the mbtiles source
+tilelive.load(sourceUri, function(err, src) {
+  // load the s3 sink
+  tilelive.load(sinkUri, function(err, dest) {
+
+    var options = {}; // prepare options for tilelive copy
+    options.listScheme = src.createZXYStream(); // create ZXY stream from mbtiles
+
+    // now copy all tiles to the destination
+    tilelive.copy(src, dst, options, function(err) {
+      console.log('tiles are now on s3!');
+    });
+  });
+});
+```
+
 # Test
 
 ```
