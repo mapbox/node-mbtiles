@@ -1,3 +1,7 @@
+# vNext
+
+- Remove unused utility code [#77](https://github.com/mapbox/node-mbtiles/pull/77)
+
 # 0.9.0
 
 - Add `geocoderDataIterator`.
