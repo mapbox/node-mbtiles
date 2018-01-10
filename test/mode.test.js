@@ -25,7 +25,7 @@ tape('Open with rw mode', function(assert) {
 })
 
 tape('Open with rwc mode', function(assert) {
-  new MBTiles(non_existent + '?mode=rwc', function(err, mbtiles) => {
+  new MBTiles(non_existent + '?mode=rwc', function(err, mbtiles) {
     assert.notOk(err);
     assert.end();
   })
