@@ -22,10 +22,16 @@ var MBTiles = require('@mapbox/mbtiles');
 All MBTiles instances need to be constructed before any of the methods become available. *NOTE: All methods described below assume you've taken this step.*
 
 ```javascript
-new MBTiles('./path/to/file.mbtiles', function(err, mbtiles) {
+new MBTiles('./path/to/file.mbtiles?mode={ro, rw, rwc}', function(err, mbtiles) {
   console.log(mbtiles) // mbtiles object with methods listed below
 });
 ```
+
+The `mode` query parameter is a opening flag of mbtiles. It is optional, default as `rwc`. Available flags are:
+
+- `ro`: readonly mode, will throw error if the mbtiles is not existed.
+- `rw`: read and write mode, will throw error if the mbtiles is not existed.
+- `rwc`: read, write and create mode, will create a new mbtiles if the mbtiles is not existed.
 
 ### Reading
 
