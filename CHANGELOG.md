@@ -1,6 +1,7 @@
 # vNext
 
 - Remove unused utility code [#77](https://github.com/mapbox/node-mbtiles/pull/77)
+- Add `mode` option to MBTiles constructor which allows you to specify READONLY (ro), READWRITE (rw), or the default READWRITECREATE (rwc) [#73](https://github.com/mapbox/node-mbtiles/pull/73) - _added by [@jingsam](https://github.com/jingsam)_ 
 
 # 0.9.0
 
