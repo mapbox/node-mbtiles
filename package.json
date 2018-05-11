@@ -4,10 +4,7 @@
   "description": "Utilities and tilelive integration for the MBTiles format.",
   "url": "http://github.com/mapbox/node-mbtiles",
   "author": "Mapbox (https://www.mapbox.com)",
-  "keywords": [
-    "map",
-    "mbtiles"
-  ],
+  "keywords": ["map", "mbtiles"],
   "licenses": [
     {
       "type": "BSD"
@@ -30,7 +27,7 @@
   "dependencies": {
     "d3-queue": "~2.0.3",
     "@mapbox/tiletype": "0.3.x",
-    "sqlite3": "3.x",
+    "sqlite3": "4.x",
     "@mapbox/sphericalmercator": "~1.0.1"
   },
   "devDependencies": {
