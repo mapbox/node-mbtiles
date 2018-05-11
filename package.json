@@ -4,7 +4,10 @@
   "description": "Utilities and tilelive integration for the MBTiles format.",
   "url": "http://github.com/mapbox/node-mbtiles",
   "author": "Mapbox (https://www.mapbox.com)",
-  "keywords": ["map", "mbtiles"],
+  "keywords": [
+    "map", 
+    "mbtiles"
+  ],
   "licenses": [
     {
       "type": "BSD"
