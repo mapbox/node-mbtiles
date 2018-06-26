@@ -30,8 +30,8 @@
   "dependencies": {
     "d3-queue": "~2.0.3",
     "@mapbox/tiletype": "0.3.x",
-    "sqlite3": "3.x",
-    "@mapbox/sphericalmercator": "~1.0.1"
+    "sqlite3": "4.x",
+    "@mapbox/sphericalmercator": "~1.1.0"
   },
   "devDependencies": {
     "tape": "~3.0.0",
@@ -39,7 +39,7 @@
     "eslint-config-unstyled": "^1.1.0"
   },
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 4"
   },
   "scripts": {
     "test": "eslint lib && tape test/*.js"
