@@ -1,7 +1,11 @@
-# vNext
+# 0.10.0
 
+- Now supporting node v10
+- Upgraded to @mapbox/sphericalmercator@1.1.0
+- Upgraded to sqlite3@4.x with node v10 support
+- Dropped support for node versions before 4 (due to sqlite2 upgrade)
 - Remove unused utility code [#77](https://github.com/mapbox/node-mbtiles/pull/77)
-- Add `mode` option to MBTiles constructor which allows you to specify READONLY (ro), READWRITE (rw), or the default READWRITECREATE (rwc) [#73](https://github.com/mapbox/node-mbtiles/pull/73) - _added by [@jingsam](https://github.com/jingsam)_ 
+- Add `mode` option to MBTiles constructor which allows you to specify READONLY (ro), READWRITE (rw), or the default READWRITECREATE (rwc) [#73](https://github.com/mapbox/node-mbtiles/pull/73) - _added by [@jingsam](https://github.com/jingsam)_
 
 # 0.9.0
 
