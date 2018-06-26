@@ -62,7 +62,7 @@ tape('getGeocoderData (no table)', function(assert) {
 tape('putGeocoderData', function(assert) {
     to.startWriting(function(err) {
         assert.ifError(err);
-        to.putGeocoderData('term', 0, new Buffer('asdf'), function(err) {
+        to.putGeocoderData('term', 0, Buffer.from('asdf'), function(err) {
             assert.ifError(err);
             to.stopWriting(function(err) {
                 assert.ifError(err);
@@ -223,4 +223,3 @@ tape('cleanup', function(assert) {
     try { fs.rmdirSync(tmp); } catch(err) { throw err; }
     assert.end();
 });
-
