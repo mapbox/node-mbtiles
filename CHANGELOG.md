@@ -1,3 +1,7 @@
+# vNext
+
+- use `path.join` so pkg can auto detect assets [#80](https://github.com/mapbox/node-mbtiles/pull/80) - [@jingsam](https://github.com/jingsam)
+
 # 0.10.0
 
 - Now supporting node v10
