@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "tape": "~3.0.0",
-    "eslint": "~1.00.0",
+    "eslint": "~1.0.0",
     "eslint-config-unstyled": "^1.1.0"
   },
   "engines": {
