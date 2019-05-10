@@ -1,6 +1,5 @@
-# 0.11.0
+# vNext
 
-- getInfo() returns `scheme` as `xyz` instead of `tms` [#66](https://github.com/mapbox/node-mbtiles/pull/66) - [@hannesj](https://github.com/hannesj)
 - use `path.join` so pkg can auto detect assets [#80](https://github.com/mapbox/node-mbtiles/pull/80) - [@jingsam](https://github.com/jingsam)
 
 # 0.10.0
