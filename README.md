@@ -29,9 +29,9 @@ new MBTiles('./path/to/file.mbtiles?mode={ro, rw, rwc}', function(err, mbtiles) 
 
 The `mode` query parameter is a opening flag of mbtiles. It is optional, default as `rwc`. Available flags are:
 
-- `ro`: readonly mode, will throw error if the mbtiles is not existed.
-- `rw`: read and write mode, will throw error if the mbtiles is not existed.
-- `rwc`: read, write and create mode, will create a new mbtiles if the mbtiles is not existed.
+- `ro`: readonly mode, will throw error if the mbtiles does not exist.
+- `rw`: read and write mode, will throw error if the mbtiles does not exist.
+- `rwc`: read, write and create mode, will create a new mbtiles if the mbtiles does not exist.
 
 ### Reading
 
