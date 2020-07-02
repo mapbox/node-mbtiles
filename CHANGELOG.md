@@ -1,3 +1,9 @@
+# 0.12.0
+
+- Remove support for node versions < 10
+- Add support for node v12, v14
+- Upgrade to sqlite3@5.0.0
+
 # 0.11.0
 
 ## Breaking changes
