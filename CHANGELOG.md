@@ -1,3 +1,6 @@
+# 0.10.1
+ - collects stats about tile in a file
+
 # 0.10.0
 
 - Now supporting node v10
