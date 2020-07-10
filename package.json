@@ -34,9 +34,10 @@
     "@mapbox/sphericalmercator": "~1.1.0"
   },
   "devDependencies": {
-    "tape": "~3.0.0",
-    "eslint": "~1.00.0",
-    "eslint-config-unstyled": "^1.1.0"
+    "eslint": "~5.16.0",
+    "eslint-config-unstyled": "^1.1.0",
+    "sinon": "^9.0.2",
+    "tape": "~4.10.1"
   },
   "engines": {
     "node": ">= 4"
