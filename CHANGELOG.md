@@ -1,3 +1,5 @@
+# 0.10.2
+ - collects stats in terms of KM2 in a stats file
 # 0.10.1
  - collects stats about tile in a file
 
