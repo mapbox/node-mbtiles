@@ -2,6 +2,16 @@ var tape = require('tape');
 var MBTiles = require('../lib/mbtiles.js');
 var source;
 
+// Add `finally()` to `Promise.prototype`
+Promise.prototype.finally = function(onFinally) {
+    return this.then(
+      /* onFulfilled */
+      res => Promise.resolve(onFinally()).then(() => res),
+      /* onRejected */
+      err => Promise.resolve(onFinally()).then(() => { throw err; })
+    );
+  }
+
 tape('zxystream setup', function(assert) {
     new MBTiles(__dirname + '/fixtures/plain_2.mbtiles', function(err, s) {
         assert.ifError(err);
