@@ -1,3 +1,9 @@
+# 0.12.2
+ - collects stats in terms of KM2 in a stats file
+
+# 0.12.1
+ - collects stats about tile in a file
+
 # 0.12.0
 
 - Remove support for node versions < 10
