@@ -2,7 +2,7 @@
 
 Node.js utilities and [tilelive](https://github.com/mapbox/tilelive.js) integration for the [MBTiles](https://github.com/mapbox/mbtiles-spec) format.
 
-[![Build Status](https://travis-ci.org/mapbox/node-mbtiles.svg?branch=master)](https://travis-ci.org/mapbox/node-mbtiles)
+[![Build Status](https://travis-ci.com/mapbox/node-mbtiles.svg?branch=master)](https://travis-ci.com/mapbox/node-mbtiles)
 [![Build status](https://ci.appveyor.com/api/projects/status/04wbok5rs3eroffe)](https://ci.appveyor.com/project/Mapbox/node-mbtiles)
 
 # Installation
