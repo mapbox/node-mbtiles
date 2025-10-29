@@ -1,5 +1,4 @@
 'use strict';
-require('sqlite3').verbose();
 var tape = require('tape');
 var fs = require('fs');
 var os = require('os');

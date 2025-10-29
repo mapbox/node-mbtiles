@@ -1,5 +1,3 @@
-require('sqlite3').verbose();
-
 var tape = require('tape');
 var fs = require('fs');
 var MBTiles = require('..');

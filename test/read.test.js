@@ -1,5 +1,3 @@
-require('sqlite3').verbose();
-
 var fs = require('fs');
 var MBTiles = require('..');
 var tape = require('tape');
@@ -137,7 +135,7 @@ fs.readdirSync(__dirname + '/fixtures/grids/').forEach(function(file) {
         loaded.non_existent.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'Tile does not exist', assert.end));
     });
     tape('corrupt ' + coords.join('/'), function(assert) {
-        loaded.corrupt.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'SQLITE_CORRUPT: database disk image is malformed', assert.end));
+        loaded.corrupt.getTile(coords[0], coords[1], coords[2], yieldsError(assert, 'error', 'database disk image is malformed', assert.end));
     });
 });
 
