@@ -28,16 +28,17 @@
     "Kai Dalgleish <kaibot3000>"
   ],
   "dependencies": {
-    "@mapbox/sphericalmercator": "~1.1.0",
+    "@mapbox/sphericalmercator": "~1.2.0",
     "@mapbox/tiletype": "0.3.x",
     "d3-queue": "~3.0.7",
-    "sqlite3": "^5.0.0"
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "eslint": "~5.16.0",
-    "eslint-config-unstyled": "^1.1.0",
-    "sinon": "^9.0.2",
-    "tape": "~4.10.1"
+    "@eslint/js": "^9.5.0",
+    "eslint": "^9.5.0",
+    "globals": "^15.6.0",
+    "sinon": "^18.0.0",
+    "tape": "~5.8.1"
   },
   "engines": {
     "node": ">= 10"

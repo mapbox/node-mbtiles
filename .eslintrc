@@ -1,6 +1,0 @@
-{
-  "extends": "eslint-config-unstyled",
-  "parserOptions": {
-    "ecmaVersion": 9
-  }
-}
